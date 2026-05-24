@@ -1,6 +1,6 @@
 ---
 name: shentu-validator-ops
-description: Operate Shentu Chain validators on shentu-2.2: monitor node health, verify signing, prepare and execute upgrades, triage Tenderduty alerts, recover safely, and write concise operator reports.
+description: "Operate Shentu Chain validators on shentu-2.2: monitor node health, verify signing, prepare and execute upgrades, triage Tenderduty alerts, recover safely, and write concise operator reports."
 ---
 
 # Shentu Validator Ops
