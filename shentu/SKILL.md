@@ -41,21 +41,10 @@ If operating POSTHUMAN infrastructure, first load the local Shentu inventory
 from the operator knowledge base. At publication time the confirmed Shentu
 validators were:
 
-- BrightWave: service `shentu`, RPC `127.0.0.1:35657`, moniker
-  `web34ever`, valoper
-  `shentuvaloper1036rphfnyw49fzm5ajfud743j2qutlk9v8lgp2`, consensus
-  `EA4A6B5765D8DC4F663A71693E6459B15194544E`.
 - OVH/cosmos-mix-1: service `shentud`, RPC `127.0.0.1:26757`, moniker
   `POSTHUMAN StakeDrop`, valoper
   `shentuvaloper1qqrw7v5xcyxpp3f0gelp08td9q95ayfdugecw0`, consensus
   `C19094159921C0D84AC1AEC8331FE2299EA83491`.
-
-Tenderduty may also contain `ShentuCyb` / `cyberG` with valoper
-`shentuvaloper1yq8a2ksa7dz8wd8wlks3k8nqdmht76xdkmqzxv` and consensus
-`C0F0B57336E76854BD173AE5A5F1AD48F5EF40EA`. Its host mapping was unresolved
-in POSTHUMAN docs at publication time. Do not restart BrightWave or OVH to fix
-`cyberG` alerts unless you have first confirmed the affected consensus key
-matches that host.
 
 ## Safety Rules
 
