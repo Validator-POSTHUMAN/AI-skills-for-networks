@@ -33,7 +33,9 @@ Never claim the validator is healthy, upgraded, or signing without live checks.
 - Latest verified release at publication time: `v2.18.0`
   (`1e23f5f7c66e90ecc4309f6964b0792d6b1e761b`).
 
-Always re-check releases/tags before preparing a new upgrade.
+These are publication-time defaults, not authorization to act. Always refresh
+official repositories, tags, checksums, seeds, and on-chain upgrade plans before
+preparing an upgrade or changing peer configuration.
 
 ## Operator Inventory Guardrails
 
@@ -52,6 +54,11 @@ input. Required target fields are:
 - Valoper address.
 - Consensus address.
 
+When a machine-readable inventory format is useful, read
+`references/inventory.schema.json`. Use
+`examples/inventory.example.json` only as a fake-value template; never treat it
+as production inventory.
+
 If the inventory is missing, inconsistent, or ambiguous, ask the operator for
 the missing target data before restarting services or deleting data. Do not use
 examples from this skill as real inventory.
@@ -68,6 +75,9 @@ examples from this skill as real inventory.
   signing before declaring a node down.
 - Prefer waiting over restarting during network-wide halts, upgrade boundaries,
   or when public RPCs show the same stuck height.
+- Before any restart, preserve recent logs and define the expected recovery
+  signal. Do at most one controlled restart for a clear local fault before
+  escalating to deeper recovery.
 - For upgrades, prepare binaries in advance and verify the running process
   after the upgrade height.
 
@@ -81,8 +91,13 @@ scripts/shentu-healthcheck.sh \
   --service <systemd-service> \
   --rpc http://127.0.0.1:<port> \
   --valcons <HEX_CONSENSUS_ADDRESS> \
-  --valoper <shentuvaloper...>
+  --valoper <shentuvaloper...> \
+  --public-rpc https://<public-rpc>
 ```
+
+Use `--local` instead of `--host` when already running on the target host.
+Use `--blocks <n>` to change the recent signing window and `--daemon <name>`
+if the binary name differs from `shentud`.
 
 Manual checks:
 
@@ -140,7 +155,13 @@ shentud query staking validator <valoper> --node <rpc> -o json |
   jq -r '(.validator // .) as $v | $v.status, $v.jailed, $v.tokens'
 ```
 
-6. Restart only if the target node is the affected validator and there is clear
+6. Preserve recent logs before changing process state:
+
+```bash
+journalctl -u <service> -n 300 --no-pager
+```
+
+7. Restart only if the target node is the affected validator and there is clear
    local failure: RPC down, process dead, stuck local height while public RPC
    advances, or logs show a local panic.
 
@@ -239,3 +260,9 @@ tar -czf ~/backups/shentu-keys-$(date +%Y%m%d).tar.gz \
   https://github.com/shentufoundation/mainnet/tree/main/shentu-2.2
 - Official releases:
   https://github.com/shentufoundation/shentu/releases
+
+## Skill Evaluation
+
+Use `evals/shentu-skill-scenarios.md` when validating whether an agent applies
+this skill safely across ambiguous alerts, RPC failures, network halts, local
+stalls, and jailed-validator workflows.

@@ -8,10 +8,24 @@ Each network directory is a self-contained skill that helps an AI agent perform
 safe validator operations: monitoring, upgrade preparation, incident triage,
 recovery checks, and operator-facing reports.
 
+Network skills should avoid real operator infrastructure data. Use fake example
+inventories and machine-readable schemas when a skill needs host, service, RPC,
+valoper, or consensus-address input.
+
 ## Skills
 
 - [Shentu](shentu/SKILL.md) — Shentu Chain validator operations for
   `shentu-2.2`.
+
+## Skill Package Layout
+
+A mature network skill may include:
+
+- `SKILL.md` — concise agent instructions and safety rules.
+- `scripts/` — deterministic checks or helpers.
+- `references/` — schemas or deeper reference material loaded only when needed.
+- `examples/` — fake-value templates, never production inventory.
+- `evals/` — scenario prompts for safety and behavior checks.
 
 ## Operating Principles
 
