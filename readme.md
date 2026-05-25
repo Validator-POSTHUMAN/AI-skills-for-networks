@@ -21,3 +21,16 @@ recovery checks, and operator-facing reports.
   approval and key backups.
 - Do not publish secrets, wallet mnemonics, keyring passwords, or private
   infrastructure credentials.
+
+## License
+
+This repository is licensed under the Creative Commons Attribution 4.0
+International Public License (CC BY 4.0).
+
+You may use, copy, modify, redistribute, and adapt these skills, including for
+commercial and internal validator operations, provided that attribution is given
+to the creator:
+
+POSTHUMAN validator - https://github.com/Validator-POSTHUMAN
+
+See [LICENSE](LICENSE) and [ATTRIBUTION.md](ATTRIBUTION.md).
