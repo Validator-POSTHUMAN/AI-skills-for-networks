@@ -35,16 +35,26 @@ Never claim the validator is healthy, upgraded, or signing without live checks.
 
 Always re-check releases/tags before preparing a new upgrade.
 
-## POSTHUMAN Guardrails
+## Operator Inventory Guardrails
 
-If operating POSTHUMAN infrastructure, first load the local Shentu inventory
-from the operator knowledge base. At publication time the confirmed Shentu
-validators were:
+This skill is validator-neutral and server-neutral. It must work for any
+Shentu validator operator and must not assume a specific team, host, service
+name, RPC port, moniker, valoper, or consensus address.
 
-- OVH/cosmos-mix-1: service `shentud`, RPC `127.0.0.1:26757`, moniker
-  `POSTHUMAN StakeDrop`, valoper
-  `shentuvaloper1qqrw7v5xcyxpp3f0gelp08td9q95ayfdugecw0`, consensus
-  `C19094159921C0D84AC1AEC8331FE2299EA83491`.
+Before operating infrastructure, load the current operator's Shentu inventory
+from their local knowledge base, runbook, monitoring config, or explicit task
+input. Required target fields are:
+
+- Host or SSH target.
+- Systemd service name.
+- Local RPC endpoint.
+- Validator moniker or label.
+- Valoper address.
+- Consensus address.
+
+If the inventory is missing, inconsistent, or ambiguous, ask the operator for
+the missing target data before restarting services or deleting data. Do not use
+examples from this skill as real inventory.
 
 ## Safety Rules
 
@@ -52,10 +62,10 @@ validators were:
   until the operator approves.
 - Before restarting, prove the target service matches the affected consensus
   address. A missed-block alert for one Shentu validator must not trigger a
-  restart of another Shentu validator.
-- Do not trust `systemctl is-active` alone. On 2026-05-19, an OVH Shentu
-  service reported inactive while the process/RPC were live and caught up.
-  Verify RPC, process, and signing before declaring it down.
+  restart of another Shentu validator or another server.
+- Do not trust `systemctl is-active` alone. A systemd unit can report inactive
+  while the process/RPC are still live and caught up. Verify RPC, process, and
+  signing before declaring a node down.
 - Prefer waiting over restarting during network-wide halts, upgrade boundaries,
   or when public RPCs show the same stuck height.
 - For upgrades, prepare binaries in advance and verify the running process

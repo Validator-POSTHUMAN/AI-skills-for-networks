@@ -14,11 +14,11 @@ Usage:
 
 Example:
   shentu-healthcheck.sh \
-    --host ubuntu@142.132.158.158 \
-    --service shentu \
-    --rpc http://127.0.0.1:35657 \
-    --valcons EA4A6B5765D8DC4F663A71693E6459B15194544E \
-    --valoper shentuvaloper1036rphfnyw49fzm5ajfud743j2qutlk9v8lgp2
+    --host <user>@<host> \
+    --service <systemd-service> \
+    --rpc http://127.0.0.1:<rpc-port> \
+    --valcons <HEX_CONSENSUS_ADDRESS> \
+    --valoper <shentuvaloper...>
 USAGE
 }
 
