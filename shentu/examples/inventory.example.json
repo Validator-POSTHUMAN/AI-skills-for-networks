@@ -1,0 +1,20 @@
+{
+  "chain_id": "shentu-2.2",
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-shentu-validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "service": "shentud",
+      "daemon": "shentud",
+      "home": "~/.shentud",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc.shentu.example.net",
+      "valoper": "shentuvaloper1exampleaddressreplacebeforeuse",
+      "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "cosmovisor": true,
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}
