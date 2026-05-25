@@ -1,7 +1,8 @@
 # AI Skills for Networks
 
-This repository contains AI-agent skills for blockchain networks validated by
-POSTHUMAN.
+This repository contains AI-agent skills for blockchain network operations.
+They are maintained by POSTHUMAN, but the skills are intended to be usable by
+any validator operator with their own inventory and runbooks.
 
 Each network directory is a self-contained skill that helps an AI agent perform
 safe validator operations: monitoring, upgrade preparation, incident triage,
