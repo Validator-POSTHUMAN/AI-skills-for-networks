@@ -16,6 +16,9 @@ valoper, or consensus-address input.
 
 - [Shentu](shentu/SKILL.md) — Shentu Chain validator operations for
   `shentu-2.2`.
+- [Axelar](axelar/SKILL.md) — Axelar validator operations for `axelar-dojo-1`,
+  including `axelard`, `vald`, `tofnd`, broadcaster, and external-chain
+  maintainer checks.
 
 ## Skill Package Layout
 

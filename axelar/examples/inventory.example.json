@@ -1,0 +1,26 @@
+{
+  "chain_id": "axelar-dojo-1",
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-axelar-validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "node_service": "axelard",
+      "vald_service": "axelar-vald",
+      "tofnd_service": "tofnd",
+      "daemon": "axelard",
+      "home": "~/.axelar",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc.axelar.example.net",
+      "tofnd_host": "127.0.0.1",
+      "valoper": "axelarvaloper1exampleaddressreplacebeforeuse",
+      "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "broadcaster": "axelar1examplebroadcasterreplacebeforeuse",
+      "cosmovisor": true,
+      "maintainer_chains": ["ethereum", "avalanche", "polygon"],
+      "min_broadcaster_uaxl": "5000000",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}
