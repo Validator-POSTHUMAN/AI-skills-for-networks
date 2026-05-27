@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/starknet/references/inventory.schema.json",
+  "title": "Starknet operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "targets"],
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["mainnet", "sepolia", "appchain", "devnet", "local"],
+      "description": "Starknet network this inventory describes."
+    },
+    "chain_id": {
+      "type": "string",
+      "description": "Expected Starknet chain ID label, for example SN_MAIN or SN_SEPOLIA."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator label. Do not include secrets."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "client", "rpc_local"],
+        "properties": {
+          "name": {"type": "string"},
+          "role": {"type": "string", "enum": ["validator", "fullnode", "archive", "rpc", "devnet", "app"]},
+          "host": {"type": "string"},
+          "ssh_target": {"type": "string"},
+          "local_execution": {"type": "boolean"},
+          "client": {"type": "string", "enum": ["pathfinder", "juno", "other"]},
+          "runtime": {"type": "string", "enum": ["docker-compose", "docker", "systemd", "binary", "source", "managed", "other"]},
+          "rpc_local": {"type": "string", "format": "uri"},
+          "rpc_public": {"type": "string", "format": "uri"},
+          "services": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "node": {"type": "string"},
+              "attestation": {"type": "string"}
+            }
+          },
+          "containers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "node": {"type": "string"},
+              "attestation": {"type": "string"}
+            }
+          },
+          "paths": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "compose_dir": {"type": "string"},
+              "data_dir": {"type": "string"},
+              "env_file": {"type": "string"},
+              "backup_dir": {"type": "string"}
+            }
+          },
+          "ethereum_ws": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source": {"type": "string"},
+              "secret_ref": {"type": "string"}
+            }
+          },
+          "validator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "staking_address": {"type": "string", "pattern": "^0x[a-fA-F0-9]{1,64}$"},
+              "operational_address": {"type": "string", "pattern": "^0x[a-fA-F0-9]{1,64}$"},
+              "rewards_address": {"type": "string", "pattern": "^0x[a-fA-F0-9]{1,64}$"}
+            }
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "client_version": {"type": "string"},
+              "rpc_version": {"type": "string"},
+              "max_block_lag": {"type": "integer", "minimum": 0}
+            }
+          },
+          "metrics_url": {"type": "string", "format": "uri"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}
+

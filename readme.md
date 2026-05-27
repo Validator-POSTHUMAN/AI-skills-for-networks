@@ -22,6 +22,9 @@ valoper, or consensus-address input.
 - [Monad](monad/SKILL.md) — Monad validator and full-node operations for
   mainnet and testnet, including `monad-bft`, `monad-execution`,
   `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
+- [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
+  validator/staking/attestation, Cairo tooling, and Starkzap/app integration
+  workflows.
 
 ## Skill Package Layout
 

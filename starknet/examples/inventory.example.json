@@ -1,0 +1,49 @@
+{
+  "network": "mainnet",
+  "chain_id": "SN_MAIN",
+  "operator_label": "example-starknet-operator",
+  "targets": [
+    {
+      "name": "primary-starknet-node",
+      "role": "validator",
+      "host": "starknet-01.example.net",
+      "ssh_target": "operator@starknet-01.example.net",
+      "local_execution": false,
+      "client": "pathfinder",
+      "runtime": "docker-compose",
+      "rpc_local": "http://127.0.0.1:9545/rpc/v0_9",
+      "rpc_public": "https://starknet-mainnet.example.org/rpc/v0_9",
+      "services": {
+        "node": "starknet-node.service",
+        "attestation": "starknet-attestation.service"
+      },
+      "containers": {
+        "node": "pathfinder",
+        "attestation": "starknet-attestation"
+      },
+      "paths": {
+        "compose_dir": "/srv/starknet",
+        "data_dir": "/srv/starknet/data",
+        "env_file": "/srv/starknet/.env",
+        "backup_dir": "/srv/starknet/backups"
+      },
+      "ethereum_ws": {
+        "source": "self-hosted-or-user-selected-provider",
+        "secret_ref": "ETHEREUM_URL"
+      },
+      "validator": {
+        "staking_address": "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "operational_address": "0x023456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0",
+        "rewards_address": "0x03456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01"
+      },
+      "expected": {
+        "client_version": "pathfinder-vX.Y.Z",
+        "rpc_version": "v0_9",
+        "max_block_lag": 20
+      },
+      "metrics_url": "http://127.0.0.1:9000/metrics",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}
+
