@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/monad/references/inventory.schema.json",
+  "title": "Monad validator and full-node operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "targets"],
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["mainnet", "testnet", "tempnet", "solonet"],
+      "description": "Monad network this inventory describes."
+    },
+    "chain_id": {
+      "type": "integer",
+      "description": "EVM chain ID, for example 143 for mainnet or 10143 for testnet."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator or team label. Do not include secrets."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "rpc_local", "services"],
+        "properties": {
+          "name": {"type": "string"},
+          "role": {"type": "string", "enum": ["validator", "fullnode", "archive", "solonet"]},
+          "host": {"type": "string"},
+          "ssh_target": {"type": "string"},
+          "local_execution": {"type": "boolean"},
+          "rpc_local": {"type": "string", "format": "uri"},
+          "rpc_public": {"type": "string", "format": "uri"},
+          "services": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["bft", "execution", "rpc"],
+            "properties": {
+              "bft": {"type": "string", "default": "monad-bft"},
+              "execution": {"type": "string", "default": "monad-execution"},
+              "rpc": {"type": "string", "default": "monad-rpc"},
+              "otel": {"type": "string", "default": "otelcol.service"},
+              "cruft": {"type": "string", "default": "monad-cruft.timer"}
+            }
+          },
+          "paths": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "env": {"type": "string", "default": "/home/monad/.env"},
+              "node_toml": {"type": "string", "default": "/home/monad/monad-bft/config/node.toml"},
+              "validators_toml": {"type": "string", "default": "/home/monad/monad-bft/config/validators/validators.toml"},
+              "forkpoint_dir": {"type": "string", "default": "/home/monad/monad-bft/config/forkpoint"},
+              "triedb": {"type": "string", "default": "/dev/triedb"},
+              "staking_cli": {"type": "string"}
+            }
+          },
+          "validator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "validator_id": {"type": "integer"},
+              "node_name": {"type": "string"},
+              "secp_pubkey": {"type": "string"},
+              "bls_pubkey": {"type": "string"},
+              "beneficiary": {"type": "string", "pattern": "^0x[a-fA-F0-9]{40}$"}
+            }
+          },
+          "expected_version": {"type": "string"},
+          "metrics_url": {"type": "string", "format": "uri"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

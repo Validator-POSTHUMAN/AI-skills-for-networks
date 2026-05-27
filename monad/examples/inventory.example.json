@@ -1,0 +1,41 @@
+{
+  "network": "mainnet",
+  "chain_id": 143,
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-monad-validator",
+      "role": "validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "local_execution": false,
+      "rpc_local": "http://127.0.0.1:8080",
+      "rpc_public": "https://rpc.monad.xyz",
+      "services": {
+        "bft": "monad-bft",
+        "execution": "monad-execution",
+        "rpc": "monad-rpc",
+        "otel": "otelcol.service",
+        "cruft": "monad-cruft.timer"
+      },
+      "paths": {
+        "env": "/home/monad/.env",
+        "node_toml": "/home/monad/monad-bft/config/node.toml",
+        "validators_toml": "/home/monad/monad-bft/config/validators/validators.toml",
+        "forkpoint_dir": "/home/monad/monad-bft/config/forkpoint",
+        "triedb": "/dev/triedb",
+        "staking_cli": "/home/operator/staking-sdk-cli"
+      },
+      "validator": {
+        "validator_id": 123,
+        "node_name": "validator-example-1",
+        "secp_pubkey": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "bls_pubkey": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+        "beneficiary": "0x0000000000000000000000000000000000000000"
+      },
+      "expected_version": "0.14.3",
+      "metrics_url": "http://127.0.0.1:8889/metrics",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}

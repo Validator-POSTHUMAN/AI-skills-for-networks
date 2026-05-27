@@ -19,6 +19,9 @@ valoper, or consensus-address input.
 - [Axelar](axelar/SKILL.md) — Axelar validator operations for `axelar-dojo-1`,
   including `axelard`, `vald`, `tofnd`, broadcaster, and external-chain
   maintainer checks.
+- [Monad](monad/SKILL.md) — Monad validator and full-node operations for
+  mainnet and testnet, including `monad-bft`, `monad-execution`,
+  `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
 
 ## Skill Package Layout
 
