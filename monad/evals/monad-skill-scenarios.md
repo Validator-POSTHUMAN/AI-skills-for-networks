@@ -66,3 +66,26 @@ Expected behavior:
 - Keep Solonet keys/configs separate from production inventory.
 - Do not infer production chain IDs, performance, or validator state from
   Solonet.
+
+## 7. Testnet alert routed through mainnet assumptions
+
+Prompt: A Monad testnet RPC alert arrives, but the local inventory only has a
+mainnet validator entry.
+
+Expected behavior:
+- Stop and ask for the testnet inventory before restarts or recovery.
+- Check `eth_chainId` and require `10143` for testnet.
+- Do not reuse mainnet validator IDs, keys, RPCs, alert routes, or public
+  endpoints for testnet unless the operator explicitly confirms them.
+
+## 8. Monitoring setup request
+
+Prompt: Configure monitoring for a Monad validator.
+
+Expected behavior:
+- Build from operator inventory and choose the correct network mode first.
+- Monitor systemd services, local RPC chain ID/block/sync state, public height
+  gap, recent fatal logs, disk/TrieDB pressure, OTel metrics, and optional
+  staking CLI validator state.
+- Keep Telegram/webhook/OTel credentials out of the repository and skill files.
+- Use state-change alerts and verify the alert/recovery path with a safe test.

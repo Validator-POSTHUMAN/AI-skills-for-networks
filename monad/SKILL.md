@@ -63,6 +63,25 @@ These are publication-time defaults, not authorization to act. Always refresh
 official docs, package versions, upgrade instructions, snapshots, and current
 network information before changing a production node.
 
+## Network Mode
+
+This skill supports Monad mainnet and testnet. Always identify the target
+network before choosing RPC endpoints, expected chain ID, staking CLI
+parameters, alert labels, or recovery instructions.
+
+- Mainnet: use EVM chain ID `143`; default public RPC fallback
+  `https://rpc.monad.xyz`; production validator actions require the
+  operator's real inventory and explicit approval for transactions or recovery.
+- Testnet: use EVM chain ID `10143`; default public RPC fallback
+  `https://testnet-rpc.monad.xyz`; do not reuse mainnet keys, beneficiary
+  addresses, alert routes, or snapshot assumptions unless the operator's
+  inventory explicitly says they are intended for testnet.
+- Tempnet and Solonet: require operator-provided chain ID, RPC, service names,
+  and local docs because these environments can be reset or customized.
+
+For every health check, confirm `eth_chainId` against the intended network
+before interpreting validator state or reporting that the node is healthy.
+
 ## Operator Inventory Guardrails
 
 This skill is validator-neutral and server-neutral. It must work for any
@@ -137,6 +156,8 @@ Use `--local` instead of `--host` when already running on the target host.
 Use `--service <name>` repeatedly if the operator uses custom service names.
 Use `--staking-cli <path>` when validator state should be queried through an
 installed staking CLI.
+`--network mainnet` and `--network testnet` set the expected chain ID and
+default public RPC unless explicitly overridden.
 
 Manual checks:
 
@@ -176,6 +197,48 @@ Interpretation:
   `latest` data is low-latency and can be provisional.
 - Public RPCs are rate-limited and provider-specific. Do not diagnose a local
   node solely from one public endpoint.
+
+## Monitoring Setup
+
+The skill covers monitoring design and verification, but it does not assume a
+single operator's alerting stack. Prefer the operator's existing monitoring
+system; otherwise build a minimal state-change monitor first and expand into
+Prometheus/Grafana after the node is stable.
+
+Minimum checks for both mainnet and testnet:
+
+- systemd state for `monad-bft`, `monad-execution`, `monad-rpc`, and
+  `otelcol.service` when OTel is enabled
+- local JSON-RPC `eth_chainId`, `eth_blockNumber`, and `eth_syncing`
+- local vs public RPC height gap, using a public RPC for the same network
+- recent fatal/error patterns in BFT, execution, and RPC logs
+- root, home, ledger, and TrieDB storage pressure
+- `/metrics` availability from the OTel collector when the operator expects
+  Prometheus scraping
+- optional staking CLI validator query when a validator ID and CLI inventory
+  are available
+
+Alerting guardrails:
+
+- Use network-specific labels such as `monad-mainnet` and `monad-testnet`;
+  never send both networks to the same unlabeled alert route.
+- Alert on state changes, not every failed poll. Avoid restart loops triggered
+  by public RPC provider noise.
+- Include network, host, service, local chain ID, local height, public height,
+  lag, and the action taken in every alert.
+- Keep Telegram, Slack, webhook, and OTel credentials outside the skill and
+  outside repository files. Use environment files or the operator's secret
+  manager.
+- Before declaring monitoring complete, force or simulate one safe failure
+  such as a wrong RPC URL or a stopped disposable test service, then verify the
+  alert and recovery path.
+
+For a portable baseline, run `scripts/monad-healthcheck.sh` from cron,
+systemd timer, or the operator's monitoring agent with the correct
+`--network`, `--rpc`, service names, and alert wrapper. For production
+Prometheus/Grafana, scrape the local OTel collector and add rules for service
+down, height not advancing, chain ID mismatch, high height lag, disk pressure,
+and missing metrics.
 
 ## Alert Triage
 

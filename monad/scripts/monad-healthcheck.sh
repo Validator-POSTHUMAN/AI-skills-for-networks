@@ -8,6 +8,7 @@ RPC="http://127.0.0.1:8080"
 PUBLIC_RPC=""
 VALIDATOR_ID=""
 EXPECTED_VERSION=""
+EXPECTED_CHAIN_ID=""
 STAKING_CLI=""
 METRICS_URL="http://127.0.0.1:8889/metrics"
 CURL_TIMEOUT=8
@@ -20,8 +21,12 @@ Usage:
 
 Options:
   --network <name>             mainnet, testnet, tempnet, or solonet.
+                               Sets default public RPC and expected chain ID for
+                               mainnet/testnet when not overridden.
   --rpc <url>                  Local JSON-RPC endpoint. Default: http://127.0.0.1:8080.
   --public-rpc <url>           Optional public JSON-RPC endpoint for height comparison.
+  --expected-chain-id <id>     Optional expected EVM chain ID. Defaults from --network
+                               for mainnet/testnet.
   --validator-id <id>          Optional validator ID for staking-cli query.
   --expected-version <version> Optional expected Monad package/runtime version substring.
   --staking-cli <path>         Optional staking-sdk-cli directory or executable.
@@ -40,6 +45,7 @@ while [[ $# -gt 0 ]]; do
     --network) NETWORK="$2"; shift 2 ;;
     --rpc) RPC="$2"; shift 2 ;;
     --public-rpc) PUBLIC_RPC="$2"; shift 2 ;;
+    --expected-chain-id) EXPECTED_CHAIN_ID="$2"; shift 2 ;;
     --validator-id) VALIDATOR_ID="$2"; shift 2 ;;
     --expected-version) EXPECTED_VERSION="$2"; shift 2 ;;
     --staking-cli) STAKING_CLI="$2"; shift 2 ;;
@@ -100,11 +106,28 @@ hex_to_dec() {
   fi
 }
 
+case "$NETWORK" in
+  mainnet)
+    : "${PUBLIC_RPC:=https://rpc.monad.xyz}"
+    : "${EXPECTED_CHAIN_ID:=143}"
+    ;;
+  testnet)
+    : "${PUBLIC_RPC:=https://testnet-rpc.monad.xyz}"
+    : "${EXPECTED_CHAIN_ID:=10143}"
+    ;;
+  tempnet|solonet|"")
+    ;;
+  *)
+    echo "warning: unknown network '$NETWORK'; expected mainnet, testnet, tempnet, or solonet" >&2
+    ;;
+esac
+
 echo "== Monad healthcheck =="
 [[ -n "$NETWORK" ]] && echo "network: $NETWORK"
 [[ -n "$HOST" ]] && echo "host: $HOST"
 echo "rpc: $RPC"
 [[ -n "$PUBLIC_RPC" ]] && echo "public_rpc: $PUBLIC_RPC"
+[[ -n "$EXPECTED_CHAIN_ID" ]] && echo "expected_chain_id: $EXPECTED_CHAIN_ID"
 
 services_joined=""
 for service in "${SERVICES[@]}"; do
@@ -160,6 +183,19 @@ run_remote "$local_script"
 local_block_json="$(run_remote "$(rpc_call_script "$RPC" "eth_blockNumber")" 2>/dev/null || true)"
 local_block_hex="$(printf '%s' "$local_block_json" | jq -r '.result // empty' 2>/dev/null || true)"
 local_block_dec="$(hex_to_dec "$local_block_hex")"
+
+chain_json="$(run_remote "$(rpc_call_script "$RPC" "eth_chainId")" 2>/dev/null || true)"
+chain_hex="$(printf '%s' "$chain_json" | jq -r '.result // empty' 2>/dev/null || true)"
+chain_dec="$(hex_to_dec "$chain_hex")"
+echo "== chain id check =="
+echo "local_chain_id: ${chain_dec:-unknown}"
+if [[ -n "$EXPECTED_CHAIN_ID" && -n "$chain_dec" ]]; then
+  if [[ "$chain_dec" == "$EXPECTED_CHAIN_ID" ]]; then
+    echo "expected_chain_id_match: yes"
+  else
+    echo "expected_chain_id_match: no (expected $EXPECTED_CHAIN_ID)"
+  fi
+fi
 
 if [[ -n "$PUBLIC_RPC" ]]; then
   echo "== public rpc compare =="
