@@ -25,6 +25,9 @@ valoper, or consensus-address input.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.
+- [Fuel](fuel/SKILL.md) — Fuel Ignition fuel-core full-node and GraphQL
+  operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
+  snapshot, and Sway/forc workflows.
 
 ## Skill Package Layout
 

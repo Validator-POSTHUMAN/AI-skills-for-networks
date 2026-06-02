@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/fuel/references/inventory.schema.json",
+  "title": "Fuel Network operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["targets"],
+  "properties": {
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator label. Do not include secrets."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "mode", "network", "runtime"],
+        "properties": {
+          "name": {"type": "string"},
+          "mode": {"type": "string", "enum": ["ignition", "sequencer"]},
+          "network": {"type": "string", "enum": ["mainnet", "testnet", "local", "devnet", "other"]},
+          "chain_id": {"type": "string"},
+          "role": {
+            "type": "string",
+            "enum": ["validator", "fullnode", "archive", "rpc", "sidecar", "bridge-helper", "developer", "other"]
+          },
+          "host": {"type": "string"},
+          "ssh_target": {"type": "string"},
+          "local_execution": {"type": "boolean"},
+          "runtime": {
+            "type": "string",
+            "enum": ["systemd", "docker-compose", "docker", "kubernetes", "binary", "source", "managed", "other"]
+          },
+          "client": {"type": "string", "enum": ["fuel-core", "fuelsequencerd", "other"]},
+          "graphql_local": {"type": "string", "format": "uri"},
+          "graphql_public": {"type": "string", "format": "uri"},
+          "cometbft_rpc_local": {"type": "string", "format": "uri"},
+          "cometbft_rpc_public": {"type": "string", "format": "uri"},
+          "services": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "node": {"type": "string"},
+              "sidecar": {"type": "string"},
+              "ethereum": {"type": "string"}
+            }
+          },
+          "containers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "node": {"type": "string"},
+              "sidecar": {"type": "string"},
+              "ethereum": {"type": "string"}
+            }
+          },
+          "paths": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "home": {"type": "string"},
+              "data_dir": {"type": "string"},
+              "config_dir": {"type": "string"},
+              "cosmovisor_dir": {"type": "string"},
+              "compose_dir": {"type": "string"},
+              "env_file": {"type": "string"},
+              "chain_config_dir": {"type": "string"},
+              "backup_dir": {"type": "string"}
+            }
+          },
+          "ethereum_rpc": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source": {"type": "string"},
+              "secret_ref": {"type": "string"},
+              "network": {"type": "string", "enum": ["mainnet", "sepolia", "local", "other"]}
+            }
+          },
+          "validator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "valoper": {"type": "string"},
+              "valcons": {"type": "string"},
+              "account_address": {"type": "string"},
+              "key_name": {"type": "string"},
+              "keyring_backend": {"type": "string"},
+              "signer_ref": {"type": "string"}
+            }
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "client_version": {"type": "string"},
+              "chain_name": {"type": "string"},
+              "max_block_lag": {"type": "integer", "minimum": 0},
+              "min_peers": {"type": "integer", "minimum": 0}
+            }
+          },
+          "metrics_url": {"type": "string", "format": "uri"},
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}

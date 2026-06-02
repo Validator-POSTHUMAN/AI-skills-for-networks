@@ -1,0 +1,84 @@
+{
+  "operator_label": "example-fuel-operator",
+  "targets": [
+    {
+      "name": "fuel-ignition-mainnet-rpc",
+      "mode": "ignition",
+      "network": "mainnet",
+      "chain_id": "9889",
+      "role": "rpc",
+      "host": "fuel-ignition-01.example.net",
+      "ssh_target": "operator@fuel-ignition-01.example.net",
+      "local_execution": false,
+      "runtime": "systemd",
+      "client": "fuel-core",
+      "graphql_local": "http://127.0.0.1:4000/v1/graphql",
+      "graphql_public": "https://fuel-mainnet.example.org/v1/graphql",
+      "services": {
+        "node": "fuel-core.service"
+      },
+      "paths": {
+        "data_dir": "/srv/fuel/ignition/db",
+        "env_file": "/srv/fuel/ignition/fuel-core.env",
+        "chain_config_dir": "/srv/fuel/chain-configuration/ignition",
+        "backup_dir": "/srv/fuel/backups"
+      },
+      "ethereum_rpc": {
+        "source": "operator-selected-mainnet-endpoint",
+        "secret_ref": "ETHEREUM_MAINNET_RPC_URL",
+        "network": "mainnet"
+      },
+      "expected": {
+        "client_version": "0.48.x",
+        "chain_name": "Ignition",
+        "max_block_lag": 100
+      },
+      "notes": "Fake sample values only. Replace every field with operator inventory before use."
+    },
+    {
+      "name": "fuel-sequencer-mainnet-validator",
+      "mode": "sequencer",
+      "network": "mainnet",
+      "chain_id": "seq-mainnet-1",
+      "role": "validator",
+      "host": "fuel-sequencer-01.example.net",
+      "ssh_target": "operator@fuel-sequencer-01.example.net",
+      "local_execution": false,
+      "runtime": "systemd",
+      "client": "fuelsequencerd",
+      "cometbft_rpc_local": "http://127.0.0.1:26657",
+      "cometbft_rpc_public": "https://fuel-sequencer-rpc.example.org",
+      "services": {
+        "node": "fuelsequencerd.service",
+        "sidecar": "fuel-sidecar.service",
+        "ethereum": "ethereum.service"
+      },
+      "paths": {
+        "home": "/home/fuel/.fuelsequencer",
+        "data_dir": "/home/fuel/.fuelsequencer/data",
+        "config_dir": "/home/fuel/.fuelsequencer/config",
+        "cosmovisor_dir": "/home/fuel/.fuelsequencer/cosmovisor",
+        "backup_dir": "/home/fuel/backups"
+      },
+      "ethereum_rpc": {
+        "source": "operator-selected-mainnet-full-node",
+        "secret_ref": "ETHEREUM_MAINNET_RPC_URL",
+        "network": "mainnet"
+      },
+      "validator": {
+        "valoper": "fuelsequencervaloper1example000000000000000000000000000000",
+        "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+        "account_address": "fuelsequencer1example000000000000000000000000000000",
+        "key_name": "validator-key",
+        "keyring_backend": "file",
+        "signer_ref": "operator-secret-manager"
+      },
+      "expected": {
+        "client_version": "seq-mainnet-1.x.y",
+        "max_block_lag": 10,
+        "min_peers": 5
+      },
+      "notes": "Fake sample values only. Do not copy addresses, hosts, or secrets into production."
+    }
+  ]
+}
