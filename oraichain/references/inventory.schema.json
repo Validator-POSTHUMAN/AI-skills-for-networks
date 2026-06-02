@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Oraichain Operator Inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "chain_id", "runtime", "rpc"],
+  "properties": {
+    "network": { "type": "string" },
+    "chain_id": { "type": "string", "const": "Oraichain" },
+    "host": { "type": "string" },
+    "runtime": {
+      "type": "string",
+      "enum": ["systemd", "docker", "docker-compose", "kubernetes", "binary", "managed", "other"]
+    },
+    "service": { "type": "string" },
+    "daemon": { "type": "string", "default": "oraid" },
+    "home": { "type": "string", "default": "~/.oraid" },
+    "data_dir": { "type": "string" },
+    "rpc": { "type": "string", "format": "uri" },
+    "api": { "type": "string", "format": "uri" },
+    "grpc": { "type": "string" },
+    "public_rpc": { "type": "string", "format": "uri" },
+    "moniker": { "type": "string" },
+    "valoper": { "type": "string", "pattern": "^oraivaloper[0-9a-z]+$" },
+    "valcons": { "type": "string", "pattern": "^[A-Fa-f0-9]{40}$" },
+    "keyring_backend": { "type": "string" },
+    "signer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["local-file", "horcrux", "tmkms", "remote-signer", "hsm", "other"]
+        },
+        "reference": { "type": "string" }
+      }
+    },
+    "cosmovisor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "root": { "type": "string" },
+        "service_env_file": { "type": "string" }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tenderduty": { "type": "string" },
+        "prometheus": { "type": "string" },
+        "grafana": { "type": "string" },
+        "alerts": { "type": "string" }
+      }
+    },
+    "oraichain_components": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "oracle": { "type": "string" },
+        "price_feed": { "type": "string" },
+        "vrf": { "type": "string" },
+        "obridge": { "type": "string" },
+        "oraibtc": { "type": "string" },
+        "oraidex": { "type": "string" },
+        "evm": { "type": "string" }
+      }
+    },
+    "notes": { "type": "string" }
+  }
+}

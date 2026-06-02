@@ -1,0 +1,43 @@
+{
+  "network": "mainnet",
+  "chain_id": "Oraichain",
+  "host": "validator-01.example.net",
+  "runtime": "systemd",
+  "service": "oraid",
+  "daemon": "oraid",
+  "home": "~/.oraid",
+  "data_dir": "~/.oraid/data",
+  "rpc": "http://127.0.0.1:26657",
+  "api": "http://127.0.0.1:1317",
+  "grpc": "127.0.0.1:9090",
+  "public_rpc": "https://rpc.example.net",
+  "moniker": "example-validator",
+  "valoper": "oraivaloper1example000000000000000000000000000000000",
+  "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+  "keyring_backend": "operator-secret-manager-reference",
+  "signer": {
+    "type": "remote-signer",
+    "reference": "non-secret signer inventory pointer"
+  },
+  "cosmovisor": {
+    "enabled": true,
+    "root": "~/.oraid/cosmovisor",
+    "service_env_file": "/etc/default/oraid"
+  },
+  "monitoring": {
+    "tenderduty": "tenderduty.example.net",
+    "prometheus": "prometheus.example.net",
+    "grafana": "grafana.example.net",
+    "alerts": "pager.example.net"
+  },
+  "oraichain_components": {
+    "oracle": "operator-specific oracle component reference",
+    "price_feed": "operator-specific price-feed component reference",
+    "vrf": "operator-specific vrf component reference",
+    "obridge": "operator-specific bridge component reference",
+    "oraibtc": "operator-specific oraibtc component reference",
+    "oraidex": "operator-specific oraidex component reference",
+    "evm": "operator-specific evm component reference"
+  },
+  "notes": "Fake example only. Do not commit production inventory or secrets."
+}

@@ -28,6 +28,10 @@ valoper, or consensus-address input.
 - [Fuel](fuel/SKILL.md) — Fuel Ignition fuel-core full-node and GraphQL
   operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
   snapshot, and Sway/forc workflows.
+- [Oraichain](oraichain/SKILL.md) — Oraichain oraid validator and node
+  operations for mainnet, including RPC/API/gRPC checks, signing, upgrades,
+  snapshot recovery, CosmWasm, oracle, VRF, OraiDEX/OBridge/OraiBTC, and
+  OraichainEVM guardrails.
 
 ## Skill Package Layout
 
