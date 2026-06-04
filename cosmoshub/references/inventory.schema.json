@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/cosmoshub/references/inventory.schema.json",
+  "title": "Cosmos Hub validator operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chain_id", "targets"],
+  "properties": {
+    "chain_id": {
+      "type": "string",
+      "description": "Cosmos Hub chain ID, normally cosmoshub-4."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator or team label. Do not include secrets."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role",
+          "service",
+          "daemon",
+          "home",
+          "rpc_local"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Operator-local target label, moniker, or inventory name."
+          },
+          "role": {
+            "type": "string",
+            "enum": ["validator", "sentry", "full-node", "archive", "public-rpc", "snapshot", "ibc", "other"]
+          },
+          "host": {
+            "type": "string",
+            "description": "Host name, IP, or asset identifier."
+          },
+          "ssh_target": {
+            "type": "string",
+            "description": "Optional SSH target, for example operator@example-host."
+          },
+          "local_execution": {
+            "type": "boolean",
+            "description": "Set true when commands should run on the current host."
+          },
+          "runtime": {
+            "type": "string",
+            "enum": ["systemd", "docker", "docker-compose", "kubernetes", "binary", "source", "managed", "other"]
+          },
+          "service": {
+            "type": "string",
+            "description": "Systemd service, container, pod, or process label."
+          },
+          "daemon": {
+            "type": "string",
+            "default": "gaiad"
+          },
+          "home": {
+            "type": "string",
+            "default": "~/.gaia"
+          },
+          "data_dir": {
+            "type": "string",
+            "description": "Node data directory when different from home/data."
+          },
+          "rpc_local": {
+            "type": "string",
+            "format": "uri",
+            "description": "RPC endpoint reachable from the target host."
+          },
+          "rpc_public": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional public/reference RPC endpoint for height comparison."
+          },
+          "api_local": {
+            "type": "string",
+            "format": "uri"
+          },
+          "grpc_local": {
+            "type": "string"
+          },
+          "valoper": {
+            "type": "string",
+            "pattern": "^cosmosvaloper[0-9a-z]+$",
+            "description": "Required for validator-specific checks."
+          },
+          "valcons_hex": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f]{40}$",
+            "description": "CometBFT consensus address in uppercase or lowercase hex."
+          },
+          "valcons_bech32": {
+            "type": "string",
+            "pattern": "^cosmosvalcons[0-9a-z]+$",
+            "description": "Bech32 consensus address for slashing queries."
+          },
+          "cosmovisor": {
+            "type": "boolean"
+          },
+          "expected_version": {
+            "type": "string"
+          },
+          "max_height_gap": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "consumer_chains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Consumer chains this validator is expected to support, if applicable."
+          },
+          "relayer_services": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Relayer services tied to this node, if IBC checks are requested."
+          },
+          "key_custody_ref": {
+            "type": "string",
+            "description": "Non-secret reference to the operator's key custody process."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Non-secret operator notes."
+          }
+        },
+        "anyOf": [
+          { "required": ["ssh_target"] },
+          { "required": ["local_execution"] }
+        ]
+      }
+    }
+  }
+}

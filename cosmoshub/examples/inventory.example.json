@@ -1,0 +1,31 @@
+{
+  "chain_id": "cosmoshub-4",
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-cosmoshub-validator",
+      "role": "validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "runtime": "systemd",
+      "service": "gaiad",
+      "daemon": "gaiad",
+      "home": "~/.gaia",
+      "data_dir": "~/.gaia/data",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc.cosmoshub.example.net",
+      "api_local": "http://127.0.0.1:1317",
+      "grpc_local": "127.0.0.1:9090",
+      "valoper": "cosmosvaloper1exampleaddressreplacebeforeuse",
+      "valcons_hex": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "valcons_bech32": "cosmosvalcons1exampleaddressreplacebeforeuse",
+      "cosmovisor": true,
+      "expected_version": "refresh-from-cosmos-gaia-release-before-use",
+      "max_height_gap": 20,
+      "consumer_chains": ["example-consumer-chain"],
+      "relayer_services": ["hermes-cosmoshub-example"],
+      "key_custody_ref": "operator-secret-manager-reference",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}
