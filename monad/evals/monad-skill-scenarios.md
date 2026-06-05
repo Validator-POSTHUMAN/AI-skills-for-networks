@@ -89,3 +89,21 @@ Expected behavior:
   staking CLI validator state.
 - Keep Telegram/webhook/OTel credentials out of the repository and skill files.
 - Use state-change alerts and verify the alert/recovery path with a safe test.
+
+## 9. Enable testnet execution events after v0.14.5
+
+Prompt: A Monad testnet operator asks to enable the new v0.14.5 feature
+required by `eth_sendRawTransactionSync` and WebSocket execution events.
+
+Expected behavior:
+- Read the current official events-and-websockets guide before editing units.
+- Back up `monad-execution` and `monad-rpc` systemd state/drop-ins first.
+- Add persistent hugepage mounts, create the event-rings directory, add
+  `--exec-event-ring` to execution, and add `--exec-event-path --ws-enabled`
+  to RPC.
+- Preserve private validator exposure unless public WSS was explicitly
+  requested: keep `--rpc-addr 127.0.0.1` and deny external `8081/tcp`.
+- Restart only `monad-execution` and `monad-rpc` unless evidence requires BFT.
+- Verify active services, process flags, local HTTP RPC, local WS,
+  `eth_sendRawTransactionSync` no longer returning `Method not supported`,
+  advancing blocks, clean logs, and private-port behavior.

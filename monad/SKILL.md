@@ -1,14 +1,15 @@
 ---
 name: monad-validator-ops
-description: "Operate Monad validators and full nodes on mainnet/testnet: monitor monad-bft, monad-execution, monad-rpc, TrieDB, OTel, JSON-RPC health, staking state, upgrades, safe recovery, and concise operator reports."
+description: "Operate Monad validators and full nodes on mainnet/testnet: monitor monad-bft, monad-execution, monad-rpc, TrieDB, OTel, JSON-RPC health, execution events/WebSockets, staking state, upgrades, safe recovery, and concise operator reports."
 ---
 
 # Monad Validator Ops
 
 Use this skill for Monad node operations: validator and full-node health
 checks, JSON-RPC issues, missed participation symptoms, BFT/execution/RPC
-service triage, TrieDB disk checks, OTel metrics, upgrade preparation, staking
-operations, safe recovery, Solonet rehearsals, and concise operator reports.
+service triage, TrieDB disk checks, OTel metrics, execution events and
+WebSocket enablement, upgrade preparation, staking operations, safe recovery,
+Solonet rehearsals, and concise operator reports.
 
 ## Source Priority
 
@@ -43,6 +44,13 @@ queries unless an operator's local tooling explicitly provides them.
   - `monad-cruft`: cleanup timer
   - `otelcol`: OTel collector for metrics
 - Default RPC port in official node-ops docs: `8080`.
+- Default WebSocket port when `monad-rpc --ws-enabled` is used: `8081`.
+- Execution events are required for WebSocket subscriptions and for
+  `eth_sendRawTransactionSync` support in releases that route that method
+  through execution events, such as testnet `v0.14.5`.
+- Execution events require a `hugetlbfs` user mount and an event-rings
+  directory, usually
+  `/var/lib/hugetlbfs/user/monad/pagesize-2MB/event-rings`.
 - P2P firewall baseline from official docs: allow TCP/UDP `8000` and
   authenticated UDP `8001` where required.
 - Default node user and paths in official docs:
@@ -129,6 +137,11 @@ staking transactions, resetting state, formatting disks, or touching keys.
 - Do not change `node.toml`, remote config URLs, beneficiary address,
   staking parameters, or firewall rules without backup and explicit target
   confirmation.
+- Do not enable WebSockets by opening a validator directly to the internet
+  unless the operator explicitly asks for public exposure. Prefer
+  `--rpc-addr 127.0.0.1`, local-only `ws://127.0.0.1:8081`, and a firewall
+  deny/default-deny rule for `8081/tcp`; publish through a separate gateway
+  when public WSS is required.
 - Do not assume a cloud VM is production-suitable. Official hardware guidance
   prefers bare metal, high-frequency CPU, NVMe storage, and disabled SMT/HT.
 - During network-wide stalls, upgrade boundaries, or public RPC disagreement,
@@ -149,7 +162,8 @@ scripts/monad-healthcheck.sh \
   --rpc http://127.0.0.1:8080 \
   --public-rpc https://rpc.monad.xyz \
   --validator-id <id> \
-  --expected-version <version>
+  --expected-version <version> \
+  --check-exec-events
 ```
 
 Use `--local` instead of `--host` when already running on the target host.
@@ -197,6 +211,57 @@ Interpretation:
   `latest` data is low-latency and can be provisional.
 - Public RPCs are rate-limited and provider-specific. Do not diagnose a local
   node solely from one public endpoint.
+
+## Execution Events and WebSocket Setup
+
+Use this workflow when the operator asks to enable execution events,
+WebSockets, or release-note functionality that depends on them. In testnet
+`v0.14.5`, `eth_sendRawTransactionSync` requires execution events; without
+them, `monad-rpc` returns `Method not supported`.
+
+Before changing anything:
+
+1. Read the current official page:
+   `https://docs.monad.xyz/node-ops/events-and-websockets`.
+2. Confirm target network, host, node user, and RPC/WS exposure policy.
+3. Capture pre-state: `systemctl cat monad-execution monad-rpc`, process
+   flags, service state, `eth_chainId`, `eth_syncing`,
+   `eth_sendRawTransactionSync`, listeners, and firewall state.
+4. Back up current systemd state and drop-ins under
+   `~/backups/monad-exec-events-<timestamp>/`.
+
+Required persistent setup:
+
+- Install `libhugetlbfs-bin` if `hugeadm` is missing.
+- Add and enable `events-hugepages-mounts.service` with
+  `ExecStart=/usr/bin/hugeadm --create-user-mounts monad`.
+- Create `/var/lib/hugetlbfs/user/monad/pagesize-2MB/event-rings` and chown
+  it to the Monad node user.
+- Add a `monad-execution` drop-in that preserves existing execution flags and
+  adds `--exec-event-ring` pointing to
+  `/var/lib/hugetlbfs/user/monad/pagesize-2MB/event-rings/monad-exec-events`.
+- Add a `monad-rpc` drop-in that preserves existing RPC flags, keeps
+  `--rpc-addr 127.0.0.1` unless public exposure is explicitly requested, and
+  adds `--exec-event-path` pointing to the same event-rings file plus
+  `--ws-enabled`.
+- Run `systemctl daemon-reload`, restart `monad-execution`, then restart
+  `monad-rpc`. Do not restart BFT unless evidence requires it.
+- If WebSocket must stay private, deny external `8081/tcp` in the firewall.
+
+Verification:
+
+- `events-hugepages-mounts.service`, `monad-execution`, `monad-rpc`,
+  `monad-bft`, and `otelcol.service` are active.
+- `monad-execution` process includes `--exec-event-ring`.
+- `monad-rpc` process includes `--exec-event-path` and `--ws-enabled`.
+- HTTP RPC returns the expected `eth_chainId`, advancing `eth_blockNumber`,
+  and `eth_syncing=false`.
+- Local WebSocket on `ws://127.0.0.1:8081` returns the expected `eth_chainId`
+  if WebSockets were enabled.
+- `eth_sendRawTransactionSync` no longer returns `Method not supported`; an
+  invalid test transaction may return a validation/readiness error instead.
+- Recent RPC/execution logs show no fatal loop, no failed units exist, and
+  external direct connects to `8081` fail or time out when WS is private.
 
 ## Monitoring Setup
 

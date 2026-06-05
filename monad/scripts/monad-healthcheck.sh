@@ -12,6 +12,7 @@ EXPECTED_CHAIN_ID=""
 STAKING_CLI=""
 METRICS_URL="http://127.0.0.1:8889/metrics"
 CURL_TIMEOUT=8
+CHECK_EXEC_EVENTS=0
 SERVICES=("monad-bft" "monad-execution" "monad-rpc" "otelcol.service")
 
 usage() {
@@ -31,6 +32,8 @@ Options:
   --expected-version <version> Optional expected Monad package/runtime version substring.
   --staking-cli <path>         Optional staking-sdk-cli directory or executable.
   --metrics-url <url>          Optional OTel metrics URL. Default: http://127.0.0.1:8889/metrics.
+  --check-exec-events          Check execution-events/WebSocket wiring and
+                               eth_sendRawTransactionSync support signals.
   --service <name>             Override services to check. Repeatable; first use clears defaults.
   --curl-timeout <sec>         Per-request curl timeout. Default: 8.
   -h, --help                   Show this help.
@@ -50,6 +53,7 @@ while [[ $# -gt 0 ]]; do
     --expected-version) EXPECTED_VERSION="$2"; shift 2 ;;
     --staking-cli) STAKING_CLI="$2"; shift 2 ;;
     --metrics-url) METRICS_URL="$2"; shift 2 ;;
+    --check-exec-events) CHECK_EXEC_EVENTS=1; shift ;;
     --curl-timeout) CURL_TIMEOUT="$2"; shift 2 ;;
     --service)
       if [[ "$SERVICES_OVERRIDDEN" -eq 0 ]]; then
@@ -171,6 +175,20 @@ echo
 
 echo '== metrics =='
 curl -fsS --max-time $(remote_quote "$CURL_TIMEOUT") $(remote_quote "$METRICS_URL") 2>/dev/null | sed -n '1,8p' || true
+
+if [[ $(remote_quote "$CHECK_EXEC_EVENTS") -eq 1 ]]; then
+  echo '== execution events / websocket =='
+  printf 'events-hugepages-mounts.service '
+  systemctl is-active events-hugepages-mounts.service 2>/dev/null || true
+  systemctl cat monad-execution monad-rpc --no-pager 2>/dev/null |
+    grep -E 'exec-event-ring|exec-event-path|ws-enabled|rpc-addr' || true
+  ps -eo pid,args | grep -E '[m]onad-rpc|/usr/local/bin/[m]onad ' || true
+  findmnt /var/lib/hugetlbfs/user/monad/pagesize-2MB 2>/dev/null || true
+  ls -ld /var/lib/hugetlbfs/user/monad/pagesize-2MB/event-rings 2>/dev/null || true
+  ss -ltnp 2>/dev/null | grep -E '(:8080|:8081)' || true
+  curl -fsS --max-time $(remote_quote "$CURL_TIMEOUT") -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_sendRawTransactionSync\",\"params\":[\"0x00\"]}' $(remote_quote "$RPC") || true
+  echo
+fi
 
 echo '== recent errors =='
 journalctl -u monad-bft -u monad-execution -u monad-rpc --since '15 minutes ago' --no-pager 2>/dev/null \
