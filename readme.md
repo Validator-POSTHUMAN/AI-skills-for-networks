@@ -39,6 +39,10 @@ valoper, or consensus-address input.
   validator and full-node operations for pio-mainnet-1, including
   CometBFT/RPC/API/gRPC checks, signing, upgrades, governance, snapshots,
   application-module transaction guardrails, and recovery.
+- [Celestia](celestia/SKILL.md) — Celestia mainnet consensus validator and
+  full-node operations plus Data Availability bridge/full/light node checks,
+  including `celestia-appd`, `celestia-node`, public endpoints, snapshots,
+  bridge-node sync, upgrades, and safe recovery.
 
 ## Skill Package Layout
 

@@ -1,0 +1,44 @@
+{
+  "chain_id": "celestia",
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-celestia-validator",
+      "role": "validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "runtime": "systemd",
+      "service": "celestia-appd",
+      "daemon": "celestia-appd",
+      "home": "~/.celestia-app",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc.celestia.example.net",
+      "api_public": "https://api.celestia.example.net",
+      "grpc_public": "grpc.celestia.example.net:443",
+      "valoper": "celestiavaloper1exampleaddressreplacebeforeuse",
+      "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "valcons_bech32": "celestiavalcons1exampleaddressreplacebeforeuse",
+      "cosmovisor": true,
+      "key_custody_ref": "internal-runbook-reference-only-no-secrets",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    },
+    {
+      "name": "celestia-bridge-01",
+      "role": "bridge",
+      "host": "bridge-01.example.net",
+      "ssh_target": "operator@bridge-01.example.net",
+      "runtime": "systemd",
+      "service": "celestia-bridge",
+      "da_node_type": "bridge",
+      "node_store": "~/.celestia-bridge",
+      "bridge_rpc_local": "http://127.0.0.1:26658",
+      "core_rpc": "https://rpc.celestia.example.net",
+      "core_grpc": "grpc.celestia.example.net:443",
+      "key_name": "bridge-key",
+      "keyring_backend": "test",
+      "archival": false,
+      "metrics_endpoint": "otel.celestia.observer",
+      "notes": "Fake sample bridge values only. Do not include mnemonics, auth tokens, or wallet secrets."
+    }
+  ]
+}
