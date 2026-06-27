@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/provenance/references/inventory.schema.json",
+  "title": "Provenance validator operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chain_id", "targets"],
+  "properties": {
+    "chain_id": {
+      "type": "string",
+      "const": "pio-mainnet-1"
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator or team label. Do not include secrets."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "role",
+          "service",
+          "daemon",
+          "home",
+          "rpc_local"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Operator-local target label, moniker, or inventory name."
+          },
+          "role": {
+            "type": "string",
+            "enum": ["validator", "sentry", "fullnode", "archive", "public-rpc", "snapshot", "other"]
+          },
+          "host": {
+            "type": "string",
+            "description": "Host name, IP, or asset identifier."
+          },
+          "ssh_target": {
+            "type": "string",
+            "description": "Optional SSH target, for example user@example-host."
+          },
+          "local_execution": {
+            "type": "boolean",
+            "description": "Set true when commands should run on the current host."
+          },
+          "service": {
+            "type": "string",
+            "description": "Systemd service name, container name, or pod selector."
+          },
+          "daemon": {
+            "type": "string",
+            "default": "provenanced"
+          },
+          "home": {
+            "type": "string",
+            "default": "~/.provenanced"
+          },
+          "data_dir": {
+            "type": "string",
+            "description": "Optional explicit data directory if not <home>/data."
+          },
+          "rpc_local": {
+            "type": "string",
+            "format": "uri",
+            "description": "RPC endpoint reachable from the target host."
+          },
+          "rpc_public": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional public RPC endpoint for height comparison."
+          },
+          "api_public": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional public REST/API endpoint."
+          },
+          "grpc_public": {
+            "type": "string",
+            "description": "Optional public gRPC endpoint."
+          },
+          "valoper": {
+            "type": "string",
+            "pattern": "^pbvaloper[0-9a-z]+$"
+          },
+          "valcons": {
+            "type": "string",
+            "pattern": "^[0-9A-Fa-f]{40}$"
+          },
+          "valcons_bech32": {
+            "type": "string",
+            "pattern": "^pbvalcons[0-9a-z]+$"
+          },
+          "cosmovisor": {
+            "type": "boolean"
+          },
+          "key_custody_ref": {
+            "type": "string",
+            "description": "Non-secret reference to custody model or internal runbook."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Non-secret operator notes."
+          }
+        },
+        "anyOf": [
+          { "required": ["ssh_target"] },
+          { "required": ["local_execution"] }
+        ]
+      }
+    }
+  }
+}

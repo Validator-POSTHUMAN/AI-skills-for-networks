@@ -1,0 +1,25 @@
+{
+  "chain_id": "pio-mainnet-1",
+  "operator_label": "example-validator-operator",
+  "targets": [
+    {
+      "name": "primary-provenance-validator",
+      "role": "validator",
+      "host": "validator-01.example.net",
+      "ssh_target": "operator@validator-01.example.net",
+      "service": "provenance",
+      "daemon": "provenanced",
+      "home": "~/.provenanced",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc.provenance.example.net",
+      "api_public": "https://api.provenance.example.net",
+      "grpc_public": "grpc.provenance.example.net:443",
+      "valoper": "pbvaloper1exampleaddressreplacebeforeuse",
+      "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "valcons_bech32": "pbvalcons1exampleaddressreplacebeforeuse",
+      "cosmovisor": true,
+      "key_custody_ref": "internal-runbook-reference-only-no-secrets",
+      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+    }
+  ]
+}

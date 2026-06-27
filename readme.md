@@ -35,6 +35,10 @@ valoper, or consensus-address input.
   operations for mainnet, including RPC/API/gRPC checks, signing, upgrades,
   snapshot recovery, CosmWasm, oracle, VRF, OraiDEX/OBridge/OraiBTC, and
   OraichainEVM guardrails.
+- [Provenance](provenance/SKILL.md) — Provenance Blockchain provenanced
+  validator and full-node operations for pio-mainnet-1, including
+  CometBFT/RPC/API/gRPC checks, signing, upgrades, governance, snapshots,
+  application-module transaction guardrails, and recovery.
 
 ## Skill Package Layout
 
