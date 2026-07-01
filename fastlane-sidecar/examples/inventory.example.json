@@ -1,0 +1,43 @@
+{
+  "network": "mainnet",
+  "operator_label": "example-validator-operator",
+  "target": {
+    "name": "primary-monad-validator",
+    "host": "validator-01.example.net",
+    "ssh_target": "operator@validator-01.example.net",
+    "local_execution": false,
+    "services": {
+      "bft": "monad-bft",
+      "execution": "monad-execution",
+      "rpc": "monad-rpc",
+      "otel": "otelcol.service"
+    },
+    "paths": {
+      "node_toml": "/home/monad/monad-bft/config/node.toml",
+      "ipc_dir": "/var/run/monad-ipc",
+      "mempool_socket": "/var/run/monad-ipc/mempool.sock",
+      "compose_file": "/home/fastlane/compose.yml",
+      "env_file": "/home/fastlane/.env"
+    },
+    "validator": {
+      "validator_id": 123,
+      "beneficiary": "0x0000000000000000000000000000000000000000",
+      "coinbase_contract": "0x1111111111111111111111111111111111111111",
+      "fastlane_fullnode_pubkeys": [
+        "<FastLane fullnode secp256k1 pubkey 1>",
+        "<FastLane fullnode secp256k1 pubkey 2>"
+      ]
+    },
+    "sidecar": {
+      "user": "fastlane",
+      "container_name": "fastlane-sidecar",
+      "version": "0.0.16",
+      "digest": "sha256:<example-digest>",
+      "health_url": "http://127.0.0.1:8765/health",
+      "metrics_url": "http://127.0.0.1:8765/metrics",
+      "cpuset": "12-15",
+      "network_env": "mainnet"
+    },
+    "notes": "Fake sample values only. Replace every field with operator inventory before use."
+  }
+}

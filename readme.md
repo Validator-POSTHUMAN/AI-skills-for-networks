@@ -22,6 +22,10 @@ valoper, or consensus-address input.
 - [Monad](monad/SKILL.md) — Monad validator and full-node operations for
   mainnet and testnet, including `monad-bft`, `monad-execution`,
   `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
+- [FastLane Sidecar](fastlane-sidecar/SKILL.md) — FastLane / shMonad MEV
+  sidecar operations for Monad validators, including onboarding order,
+  rootless Docker isolation, mempool IPC wiring, release verification,
+  health checks, upgrades, and rollback.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.

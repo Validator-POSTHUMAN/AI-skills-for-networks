@@ -35,6 +35,16 @@
       },
       "expected_version": "0.14.3",
       "metrics_url": "http://127.0.0.1:8889/metrics",
+      "fastlane_sidecar": {
+        "enabled": true,
+        "user": "fastlane",
+        "container_name": "fastlane-sidecar",
+        "health_url": "http://127.0.0.1:8765/health",
+        "metrics_url": "http://127.0.0.1:8765/metrics",
+        "mempool_socket": "/var/run/monad-ipc/mempool.sock",
+        "version": "0.0.16",
+        "digest": "sha256:<example-digest>"
+      },
       "notes": "Fake sample values only. Replace every target field with operator inventory before use."
     }
   ]

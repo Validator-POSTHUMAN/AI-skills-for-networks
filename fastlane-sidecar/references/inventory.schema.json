@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/fastlane-sidecar/references/inventory.schema.json",
+  "title": "FastLane sidecar operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "target"],
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["mainnet", "testnet"],
+      "description": "Monad network for the sidecar target."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator label. Do not include secrets."
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "services", "paths", "sidecar"],
+      "properties": {
+        "name": {"type": "string"},
+        "host": {"type": "string"},
+        "ssh_target": {"type": "string"},
+        "local_execution": {"type": "boolean"},
+        "services": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bft", "execution", "rpc"],
+          "properties": {
+            "bft": {"type": "string", "default": "monad-bft"},
+            "execution": {"type": "string", "default": "monad-execution"},
+            "rpc": {"type": "string", "default": "monad-rpc"},
+            "otel": {"type": "string", "default": "otelcol.service"}
+          }
+        },
+        "paths": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["node_toml", "mempool_socket"],
+          "properties": {
+            "node_toml": {"type": "string", "default": "/home/monad/monad-bft/config/node.toml"},
+            "mempool_socket": {"type": "string", "default": "/var/run/monad-ipc/mempool.sock"},
+            "ipc_dir": {"type": "string", "default": "/var/run/monad-ipc"},
+            "compose_file": {"type": "string", "default": "/home/fastlane/compose.yml"},
+            "env_file": {"type": "string", "default": "/home/fastlane/.env"}
+          }
+        },
+        "validator": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "validator_id": {"type": "integer"},
+            "beneficiary": {"type": "string", "pattern": "^0x[a-fA-F0-9]{40}$"},
+            "coinbase_contract": {"type": "string", "pattern": "^0x[a-fA-F0-9]{40}$"},
+            "fastlane_fullnode_pubkeys": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "sidecar": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["user", "container_name", "health_url"],
+          "properties": {
+            "user": {"type": "string", "default": "fastlane"},
+            "container_name": {"type": "string", "default": "fastlane-sidecar"},
+            "version": {"type": "string"},
+            "digest": {"type": "string"},
+            "health_url": {"type": "string", "format": "uri", "default": "http://127.0.0.1:8765/health"},
+            "metrics_url": {"type": "string", "format": "uri", "default": "http://127.0.0.1:8765/metrics"},
+            "cpuset": {"type": "string"},
+            "network_env": {"type": "string", "enum": ["mainnet", "testnet"]}
+          }
+        },
+        "notes": {"type": "string"}
+      }
+    }
+  }
+}

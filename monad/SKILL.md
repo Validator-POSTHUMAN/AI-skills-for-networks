@@ -1,6 +1,6 @@
 ---
 name: monad-validator-ops
-description: "Operate Monad validators and full nodes on mainnet/testnet: monitor monad-bft, monad-execution, monad-rpc, TrieDB, OTel, JSON-RPC health, execution events/WebSockets, staking state, upgrades, safe recovery, and concise operator reports."
+description: "Operate Monad validators and full nodes on mainnet/testnet: monitor monad-bft, monad-execution, monad-rpc, TrieDB, OTel, JSON-RPC health, execution events/WebSockets, staking state, FastLane/shMonad sidecar integration, upgrades, safe recovery, and concise operator reports."
 ---
 
 # Monad Validator Ops
@@ -8,8 +8,9 @@ description: "Operate Monad validators and full nodes on mainnet/testnet: monito
 Use this skill for Monad node operations: validator and full-node health
 checks, JSON-RPC issues, missed participation symptoms, BFT/execution/RPC
 service triage, TrieDB disk checks, OTel metrics, execution events and
-WebSocket enablement, upgrade preparation, staking operations, safe recovery,
-Solonet rehearsals, and concise operator reports.
+WebSocket enablement, FastLane/shMonad sidecar integration, upgrade
+preparation, staking operations, safe recovery, Solonet rehearsals, and
+concise operator reports.
 
 ## Source Priority
 
@@ -20,6 +21,8 @@ Solonet rehearsals, and concise operator reports.
    - https://docs.monad.xyz/llms.txt
    - https://github.com/monad-crypto/monad-solonet
    - https://github.com/monad-developers/staking-sdk-cli
+   - https://docs.shmonad.xyz/validators/onboarding
+   - https://docs.shmonad.xyz/validators/onboarding/install-sidecar-rootless-docker
 4. Explorers, dashboards, and third-party RPCs only as secondary confirmation.
 
 Never claim a Monad validator is healthy, synced, upgraded, or active without
@@ -151,6 +154,34 @@ staking transactions, resetting state, formatting disks, or touching keys.
   epoch timing, auth address permissions, and transaction success before
   reporting completion.
 
+## FastLane / shMonad Sidecar
+
+For detailed FastLane MEV sidecar installation, verification, upgrade,
+rollback, and monitoring workflows, use the separate fastlane-sidecar-ops
+skill when available:
+
+- Skill: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/blob/main/fastlane-sidecar/SKILL.md
+- Official install docs: https://docs.shmonad.xyz/validators/onboarding/install-sidecar-rootless-docker
+
+Monad-specific sidecar guardrails:
+
+- Treat sidecar work as production validator work. Confirm the target network,
+  host, local RPC, service names, BFT version, and shMonad onboarding status
+  before changing anything.
+- Official shMonad onboarding order matters: coinbase contract / onboarding,
+  beneficiary update, FastLane dedicated fullnodes, then sidecar.
+- Do not change node.toml beneficiary / coinbase routing without explicit
+  operator confirmation and config backup.
+- Sidecar wiring changes monad-bft and monad-rpc mempool IPC paths. Preserve
+  the full original ExecStart in systemd drop-ins; do not edit installed unit
+  files directly.
+- Keep sidecar metrics loopback-only by default, for example
+  http://127.0.0.1:8765/health and /metrics.
+- Verify container digest and release provenance before running or upgrading.
+- If installed, monitoring should include sidecar container state, health
+  timestamp, tx_received behavior, metrics reachability, socket permissions,
+  and recent logs.
+
 ## Health Check Workflow
 
 Use the bundled script when possible:
@@ -280,6 +311,8 @@ Minimum checks for both mainnet and testnet:
 - root, home, ledger, and TrieDB storage pressure
 - `/metrics` availability from the OTel collector when the operator expects
   Prometheus scraping
+- FastLane sidecar container state, /health, /metrics, socket permissions,
+  and tx_received behavior when the sidecar is installed
 - optional staking CLI validator query when a validator ID and CLI inventory
   are available
 

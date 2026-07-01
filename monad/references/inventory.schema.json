@@ -71,6 +71,20 @@
           },
           "expected_version": {"type": "string"},
           "metrics_url": {"type": "string", "format": "uri"},
+          "fastlane_sidecar": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {"type": "boolean"},
+              "user": {"type": "string", "default": "fastlane"},
+              "container_name": {"type": "string", "default": "fastlane-sidecar"},
+              "health_url": {"type": "string", "format": "uri", "default": "http://127.0.0.1:8765/health"},
+              "metrics_url": {"type": "string", "format": "uri", "default": "http://127.0.0.1:8765/metrics"},
+              "mempool_socket": {"type": "string", "default": "/var/run/monad-ipc/mempool.sock"},
+              "version": {"type": "string"},
+              "digest": {"type": "string"}
+            }
+          },
           "notes": {"type": "string"}
         }
       }
