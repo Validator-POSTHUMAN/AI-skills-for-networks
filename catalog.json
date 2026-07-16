@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": [
+    {"id":"axelar","title":"Axelar","category":"network","path":"axelar","description":"Axelar validator and auxiliary-service operations."},
+    {"id":"celestia","title":"Celestia","category":"network","path":"celestia","description":"Celestia consensus and data-availability node operations."},
+    {"id":"cosmoshub","title":"Cosmos Hub","category":"network","path":"cosmoshub","description":"Cosmos Hub validator and full-node operations."},
+    {"id":"fastlane-sidecar","title":"FastLane Sidecar","category":"network","path":"fastlane-sidecar","description":"FastLane and shMonad sidecar operations for Monad validators."},
+    {"id":"fuel","title":"Fuel","category":"network","path":"fuel","description":"Fuel full-node, sequencer, validator, bridge, and Sway operations."},
+    {"id":"monad","title":"Monad","category":"network","path":"monad","description":"Monad validator, execution, RPC, monitoring, and recovery operations."},
+    {"id":"oraichain","title":"Oraichain","category":"network","path":"oraichain","description":"Oraichain validator, node, oracle, and bridge operations."},
+    {"id":"provenance","title":"Provenance","category":"network","path":"provenance","description":"Provenance validator and full-node operations."},
+    {"id":"shentu","title":"Shentu","category":"network","path":"shentu","description":"Shentu Chain validator operations."},
+    {"id":"starknet","title":"Starknet","category":"network","path":"starknet","description":"Starknet development, full-node, validator, and attestation workflows."},
+    {"id":"nodes-service-maintenance","title":"Nodes Service Maintenance","category":"operations","path":"nodes-service-maintenance","description":"Maintain validator-facing node-service data, UI, contributions, and deployments."},
+    {"id":"server-node-port-audit","title":"Server Node and Port Audit","category":"operations","path":"server-node-port-audit","description":"Audit blockchain workloads, listeners, and effective network exposure."},
+    {"id":"validator-exit-decommission","title":"Validator Exit and Decommission","category":"operations","path":"validator-exit-decommission","description":"Separate on-chain exit, unbonding, key retention, and infrastructure decommissioning."},
+    {"id":"validator-incident-response","title":"Validator Incident Response","category":"operations","path":"validator-incident-response","description":"Assess slashing risk, preserve evidence, recover, and verify validator incidents."},
+    {"id":"validator-migration-cutover","title":"Validator Migration Cutover","category":"operations","path":"validator-migration-cutover","description":"Migrate validator workloads with anti-double-sign and rollback gates."},
+    {"id":"validator-onboarding","title":"Validator Onboarding","category":"operations","path":"validator-onboarding","description":"Onboard validators with readiness, custody, transaction, and monitoring gates."},
+    {"id":"validator-snapshot-recovery","title":"Validator Snapshot Recovery","category":"operations","path":"validator-snapshot-recovery","description":"Recover validator or full nodes from snapshots with integrity and rollback gates."},
+    {"id":"validator-upgrade","title":"Validator Upgrade","category":"operations","path":"validator-upgrade","description":"Plan and execute validator upgrades with migration and signing verification."}
+  ]
+}

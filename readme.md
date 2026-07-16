@@ -8,6 +8,10 @@ Each network directory is a self-contained skill that helps an AI agent perform
 safe validator operations: monitoring, upgrade preparation, incident triage,
 recovery checks, and operator-facing reports.
 
+The repository also includes generic operational skills and a read-only
+[MCP catalog server](mcp-server/README.md). The MCP serves only this public
+repository; it never reads an operator's inventory or private knowledge base.
+
 Network skills should avoid real operator infrastructure data. Use fake example
 inventories and machine-readable schemas when a skill needs host, service, RPC,
 valoper, or consensus-address input.
@@ -47,6 +51,17 @@ valoper, or consensus-address input.
   full-node operations plus Data Availability bridge/full/light node checks,
   including `celestia-appd`, `celestia-node`, public endpoints, snapshots,
   bridge-node sync, upgrades, and safe recovery.
+
+### Generic Operations
+
+- [Validator Upgrade](validator-upgrade/SKILL.md)
+- [Validator Snapshot Recovery](validator-snapshot-recovery/SKILL.md)
+- [Validator Migration Cutover](validator-migration-cutover/SKILL.md)
+- [Validator Incident Response](validator-incident-response/SKILL.md)
+- [Validator Exit and Decommission](validator-exit-decommission/SKILL.md)
+- [Validator Onboarding](validator-onboarding/SKILL.md)
+- [Nodes Service Maintenance](nodes-service-maintenance/SKILL.md)
+- [Server Node and Port Audit](server-node-port-audit/SKILL.md)
 
 ## Skill Package Layout
 
