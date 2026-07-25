@@ -6,6 +6,7 @@
     {"id":"cosmoshub","title":"Cosmos Hub","category":"network","path":"cosmoshub","description":"Cosmos Hub validator and full-node operations."},
     {"id":"fastlane-sidecar","title":"FastLane Sidecar","category":"network","path":"fastlane-sidecar","description":"FastLane and shMonad sidecar operations for Monad validators."},
     {"id":"fuel","title":"Fuel","category":"network","path":"fuel","description":"Fuel full-node, sequencer, validator, bridge, and Sway operations."},
+    {"id":"limonata","title":"Limonata","category":"network","path":"limonata","description":"Limonata validator, full-node, encrypted-mempool, and DKG operations."},
     {"id":"monad","title":"Monad","category":"network","path":"monad","description":"Monad validator, execution, RPC, monitoring, and recovery operations."},
     {"id":"oraichain","title":"Oraichain","category":"network","path":"oraichain","description":"Oraichain validator, node, oracle, and bridge operations."},
     {"id":"provenance","title":"Provenance","category":"network","path":"provenance","description":"Provenance validator and full-node operations."},

@@ -36,6 +36,8 @@ valoper, or consensus-address input.
 - [Fuel](fuel/SKILL.md) — Fuel Ignition fuel-core full-node and GraphQL
   operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
   snapshot, and Sway/forc workflows.
+- [Limonata](limonata/SKILL.md) — Limonata testnet validator and full-node
+  operations, including encrypted-mempool, DKG, recovery, and restart safety.
 - [Cosmos Hub](cosmoshub/SKILL.md) — Cosmos Hub Gaia validator and full-node
   operations for cosmoshub-4, including gaiad, CometBFT signing, provider
   security, IBC-facing checks, governance, upgrades, snapshots, and recovery.
