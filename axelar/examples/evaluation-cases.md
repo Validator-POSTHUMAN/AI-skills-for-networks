@@ -94,6 +94,6 @@ Expected:
 - Do not report the panic as a consensus or tofnd outage.
 - Preserve the exact panic evidence and check consensus freshness, tofnd TCP,
   and broadcaster state independently.
-- Prefer an upstream fix that reads only tofnd settings for the tofnd check
-  instead of decoding unrelated EVM configuration.
+- Prefer an upstream fix that applies the same `ValdConfig` decode hooks used
+  by `vald-start` and returns a normal health-check error instead of panicking.
 - Do not modify or remove the valid Linea finality setting as a workaround.

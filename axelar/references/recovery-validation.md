@@ -33,10 +33,10 @@ archive_validation=passed
 The source full node stayed active, synced, and advancing with zero service
 restarts after the scan.
 
-The deterministic test script also passed one valid fixture and nine rejection
+The deterministic test script also passed one valid fixture and ten rejection
 fixtures: wrong checksum, wrong size, traversal, an entry outside `data/`, a
-symlink, missing database layout, corrupt LZ4, a symlinked archive, and an
-existing manifest target.
+symlink, missing database layout, corrupt LZ4, a missing archive, a symlinked
+archive, and an existing manifest target.
 
 ## Scope
 
