@@ -1,6 +1,6 @@
 ---
-name: axelar-validator-ops
-description: "Operate Axelar validators on axelar-dojo-1: monitor axelard, vald, tofnd, broadcaster health, external-chain maintainer status, missed blocks, upgrades, safe recovery, and concise operator reports."
+name: axelar
+description: "Use for Axelar validator health, vald/tofnd triage, upgrades, and safe recovery."
 ---
 
 # Axelar Validator Ops
@@ -37,7 +37,8 @@ external chains without live checks.
 - Official docs say validators should run the Axelar node plus companion
   processes and use `axelard health-check --tofnd-host <host>
   --operator-addr <valoper>`.
-- Latest observed `axelar-core` tag at publication time: `v1.4.0`.
+- Latest observed stable `axelar-core` release at publication time:
+  `v1.4.10`.
 
 These are publication-time defaults, not authorization to act. Always refresh
 official tags, release signatures, configs, and on-chain upgrade plans before
@@ -123,6 +124,14 @@ scripts/axelar-healthcheck.sh \
 Use `--local` instead of `--host` when already running on the target host.
 Use `--blocks <n>` to change the recent signing window and
 `--min-broadcaster-uaxl <amount>` to set the broadcaster balance threshold.
+Use `--max-block-age-seconds <n>` to tune the consensus freshness gate. A
+stale latest block must fail health even when `catching_up=false`, tofnd is
+reachable, and the broadcaster is funded.
+
+On Axelar versions whose built-in health check panics while decoding a valid
+external-chain `finality_override`, the wrapper verifies tofnd TCP separately
+and retries only the unaffected broadcaster check. It reports the compatibility
+fallback explicitly instead of treating the panic as validator health.
 
 Manual checks:
 
@@ -292,6 +301,22 @@ readlink -f /proc/$PID/exe
 
 Use the smallest safe fix first.
 
+For snapshot recovery, read `references/safe-recovery.md` and validate the
+fully downloaded archive with
+`scripts/axelar-snapshot-verify.sh` before stopping services or changing live
+data. The verifier requires an operator-supplied SHA-256 and rejects unsafe
+archive paths, links, special files, and entries outside `data/`.
+It calculates SHA-256 while performing one complete LZ4/tar pass. Run its
+deterministic positive and rejection fixtures after changes:
+
+```bash
+scripts/axelar-snapshot-verify-test.sh
+```
+
+Read `references/recovery-validation.md` for bounded full-node restore and
+published-archive test evidence. Do not treat it as proof that an arbitrary
+validator target is safe to restore.
+
 - Consensus RPC down, process alive: inspect logs, port binding, disk, and OOM
   before restart.
 - Process dead: inspect last logs and systemd reason; restart once only if the
@@ -308,15 +333,10 @@ Use the smallest safe fix first.
   needed, then unjail with correct wallet/fees only after confirming key
   ownership and operator approval.
 
-Key backup pattern before deleting node data:
-
-```bash
-mkdir -p ~/backups
-tar -czf ~/backups/axelar-keys-$(date +%Y%m%d).tar.gz \
-  ~/.axelar/config/*key*.json ~/.axelar/keyring-file/ ~/.tofnd/
-```
-
-Use the operator's actual home paths when they differ from these defaults.
+Use the operator's approved protected-backup procedure for Axelar config,
+keyring, final `priv_validator_state.json`, vald configuration, and tofnd
+state. Verify the backup without printing secret contents. Do not use broad
+globs or a generic home-directory deletion.
 
 ## External References
 
