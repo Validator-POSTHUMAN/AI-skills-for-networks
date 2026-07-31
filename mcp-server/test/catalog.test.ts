@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { listSkillFiles, loadCatalog, readSkillFile, repositoryRoot } from "../src/catalog.js";
+import { listSkillFiles, loadCatalog, publicSkillMetadata, readSkillFile, repositoryRoot } from "../src/catalog.js";
 
 test("catalog contains public network and operations skills", async () => {
   const catalog = await loadCatalog();
@@ -28,4 +28,16 @@ test("exported operations skills contain no private workspace identifiers", asyn
       assert.doesNotMatch(await readSkillFile(repositoryRoot(), entry, file), forbidden, `${entry.id}/${file}`);
     }
   }
+});
+
+test("public capability metadata excludes paths and source", async () => {
+  const catalog = await loadCatalog();
+  const entry = catalog.skills.find((item) => item.id === "validator-upgrade");
+  assert.ok(entry);
+  const metadata = await publicSkillMetadata(repositoryRoot(), catalog.version, entry);
+  assert.match(metadata.contentSha256, /^[a-f0-9]{64}$/);
+  assert.equal(metadata.delivery, "metadata-only");
+  assert.equal(metadata.sourceAvailable, false);
+  assert.equal("path" in metadata, false);
+  assert.doesNotMatch(JSON.stringify(metadata), /Preconditions|Rollback/);
 });

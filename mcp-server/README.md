@@ -1,9 +1,13 @@
 # Validator Skills MCP
 
-Read-only Model Context Protocol server for the public skills in this
-repository. It serves only paths explicitly listed in `catalog.json`; it has no
-access to operator inventories, credentials, private knowledge bases, or
-production systems.
+POSTHUMAN-owned Model Context Protocol server and capability registry. Its safe
+default is metadata-only: it advertises reviewed capability descriptions and
+SHA-256 digests without returning skill source. It has no access to operator
+inventories, credentials, private knowledge bases, or production systems.
+
+Private knowledge must never be mounted into this public process. Anything
+returned to a public client can be copied; authentication and quotas reduce
+abuse but do not make public output private.
 
 ## Requirements
 
@@ -11,9 +15,8 @@ production systems.
 - `npm ci`
 - `npm test`
 
-The server uses the split Model Context Protocol TypeScript SDK v2 packages
-and implements the 2026-07-28 protocol revision while retaining the SDK's
-legacy compatibility path.
+The split Model Context Protocol TypeScript SDK v2 implements the 2026-07-28
+protocol revision while retaining the SDK's legacy compatibility path.
 
 ## Local stdio
 
@@ -22,48 +25,81 @@ npm run build
 npm run start:stdio
 ```
 
-The stdio transport reserves stdout for MCP JSON-RPC. Diagnostics go to
+The default exposes metadata only. Trusted local stdio clients may explicitly
+enable source compatibility:
+
+```bash
+POSTHUMAN_MCP_MODE=source npm run start:stdio
+```
+
+HTTP rejects source mode. Stdout is reserved for MCP JSON-RPC; diagnostics use
 stderr.
 
 ## Remote HTTP
 
-The HTTP transport is stateless and binds to loopback by default:
+HTTP is stateless and binds to loopback by default:
 
 ```bash
 npm run build
 MCP_PORT=3000 npm run start:http
 ```
 
-For a non-loopback bind, set an explicit Host allowlist:
+For a public reverse-proxy deployment, keep the process on loopback and set:
 
-```bash
-MCP_HOST=0.0.0.0 \
-MCP_ALLOWED_HOSTS=skills.example.org \
-MCP_PORT=3000 \
-npm run start:http
+```text
+MCP_HOST=127.0.0.1
+MCP_PORT=3000
+MCP_ALLOWED_HOSTS=skills.example.org
+MCP_ALLOWED_ORIGINS=skills.example.org
+MCP_REQUIRE_AUTH=true
+MCP_BEARER_KEYS=<credential delivered outside git and argv>
+MCP_RATE_LIMIT_PER_MINUTE=60
+MCP_IP_RATE_LIMIT_PER_MINUTE=30
+POSTHUMAN_MCP_MODE=metadata
 ```
 
-Deploy behind TLS and rate limiting. Requests with an `Origin` header are
-rejected unless that origin's hostname appears in `MCP_ALLOWED_ORIGINS`
-(full origin URLs are accepted and normalized to hostnames). The server
-does not provide authentication because all catalog content is public and
-read-only; add authentication at the reverse proxy if deployment policy
-requires it.
+`MCP_BEARER_KEYS` accepts comma-separated keys so rotation can overlap old and new
+credentials. Each key must contain at least 32 characters. Remove the old key
+after clients migrate. Never place keys in the repository, service unit,
+process arguments, or shell history.
+
+Non-loopback mode fails closed without a Host allowlist. Authentication can be
+required independently of bind address, which is mandatory behind a loopback
+reverse proxy. The application enforces bounded per-IP and per-key
+fixed-window quotas; the reverse proxy must add TLS and an independent request
+limit. Loopback proxy hops are trusted only for client-address resolution.
+
+Requests with an `Origin` header are rejected unless that origin's hostname is
+allowlisted. Full origin URLs are accepted and normalized to hostnames.
 
 Endpoints:
 
 - `GET /healthz`
 - `POST /mcp`
 
-## Tools
+## Public surface
 
-- `list_skills` — list or filter catalog metadata
-- `get_skill` — read `SKILL.md` or a bounded bundled public file
-- `search_skills` — search public metadata and skill instructions
+- `list_capabilities` — list or filter metadata;
+- `get_capability_metadata` — return metadata and canonical `SKILL.md` digest;
+- `search_capabilities` — search metadata only;
+- `skills://registry` — metadata registry resource.
+
+Every tool is annotated read-only, non-destructive, idempotent, and closed
+world. Modern clients can use `server/discover`; list/read responses carry
+public cache hints. The server registers no mutation, sampling, roots, prompt,
+task, or multi-round-trip capability and uses no `Mcp-Session-Id` state.
+
+## Security and audit behavior
 
 The server rejects path traversal, symlinks, unlisted file classes, oversized
-files, unlisted Host headers, and browser origins that were not allowlisted.
-HTTP serving is stateless and does not issue or accept `Mcp-Session-Id` state.
-Modern clients can use `server/discover`; list/read responses carry public
-cache hints. No multi-round-trip, sampling, roots, or mutation capability is
-registered.
+files, source mode over HTTP, unlisted Host/Origin values, missing bearer
+credentials when required, malformed modern routing headers, and over-limit
+requests. Authorization and cookie headers are removed before MCP dispatch.
+
+Each `/mcp` response emits a content-free JSON audit record to stderr with
+timestamp, method, optional tool name, keyed client fingerprint, status, and
+duration. It does not record tokens, IP addresses, request IDs, arguments,
+responses, prompts, skill source, headers, or cookies. Use the service journal
+retention policy rather than adding payload logging.
+
+Deployment templates and rollback gates are in [`deploy/README.md`](deploy/README.md).

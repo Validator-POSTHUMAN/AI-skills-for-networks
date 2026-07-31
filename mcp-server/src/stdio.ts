@@ -1,7 +1,8 @@
 import { serveStdio } from "@modelcontextprotocol/server/stdio";
-import { createSkillCatalogServer } from "./server.js";
+import { catalogMode, createSkillCatalogServer } from "./server.js";
 
-const handle = serveStdio(createSkillCatalogServer, {
+const mode = catalogMode();
+const handle = serveStdio(() => createSkillCatalogServer({ mode }), {
   onerror: (error) => process.stderr.write(`MCP stdio error: ${error.message}\n`),
 });
 
