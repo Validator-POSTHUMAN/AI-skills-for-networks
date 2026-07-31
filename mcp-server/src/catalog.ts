@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { lstat, readFile, readdir, realpath } from "node:fs/promises";
 import { dirname, extname, posix, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,19 @@ export interface SkillEntry {
   category: string;
   path: string;
   description: string;
+}
+
+export interface PublicSkillMetadata {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  publisher: "Validator-POSTHUMAN";
+  catalogVersion: number;
+  contentSha256: string;
+  delivery: "metadata-only";
+  visibility: "public-metadata";
+  sourceAvailable: false;
 }
 
 interface CatalogDocument {
@@ -75,6 +89,26 @@ export async function readSkillFile(root: string, entry: SkillEntry, file = "SKI
     throw new Error("Public file is unavailable or too large");
   }
   return readFile(targetReal, "utf8");
+}
+
+export async function publicSkillMetadata(
+  root: string,
+  catalogVersion: number,
+  entry: SkillEntry,
+): Promise<PublicSkillMetadata> {
+  const skill = await readSkillFile(root, entry);
+  return {
+    id: entry.id,
+    title: entry.title,
+    category: entry.category,
+    description: entry.description,
+    publisher: "Validator-POSTHUMAN",
+    catalogVersion,
+    contentSha256: createHash("sha256").update(skill, "utf8").digest("hex"),
+    delivery: "metadata-only",
+    visibility: "public-metadata",
+    sourceAvailable: false,
+  };
 }
 
 async function walkPublicFiles(base: string, current: string, depth: number): Promise<string[]> {
