@@ -11,6 +11,10 @@ production systems.
 - `npm ci`
 - `npm test`
 
+The server uses the split Model Context Protocol TypeScript SDK v2 packages
+and implements the 2026-07-28 protocol revision while retaining the SDK's
+legacy compatibility path.
+
 ## Local stdio
 
 ```bash
@@ -40,7 +44,8 @@ npm run start:http
 ```
 
 Deploy behind TLS and rate limiting. Requests with an `Origin` header are
-rejected unless that exact origin appears in `MCP_ALLOWED_ORIGINS`. The server
+rejected unless that origin's hostname appears in `MCP_ALLOWED_ORIGINS`
+(full origin URLs are accepted and normalized to hostnames). The server
 does not provide authentication because all catalog content is public and
 read-only; add authentication at the reverse proxy if deployment policy
 requires it.
@@ -58,3 +63,7 @@ Endpoints:
 
 The server rejects path traversal, symlinks, unlisted file classes, oversized
 files, unlisted Host headers, and browser origins that were not allowlisted.
+HTTP serving is stateless and does not issue or accept `Mcp-Session-Id` state.
+Modern clients can use `server/discover`; list/read responses carry public
+cache hints. No multi-round-trip, sampling, roots, or mutation capability is
+registered.

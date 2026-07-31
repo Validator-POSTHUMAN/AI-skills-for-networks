@@ -1,58 +1,68 @@
-import express, { type Request } from "express";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { createMcpExpressApp } from "@modelcontextprotocol/express";
+import { createMcpHandler } from "@modelcontextprotocol/server";
+import type { Request as ExpressRequest, Response as ExpressResponse } from "express";
 import { createSkillCatalogServer } from "./server.js";
 
-function csv(value: string | undefined): Set<string> {
-  return new Set((value ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean));
+function csv(value: string | undefined): string[] {
+  return [...new Set((value ?? "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean))];
 }
 
-function requestHost(request: Request): string {
-  return (request.headers.host ?? "").toLowerCase();
+function originHostnames(value: string | undefined): string[] {
+  return csv(value).map((item) => {
+    try {
+      return new URL(item).hostname.toLowerCase();
+    } catch {
+      return item;
+    }
+  });
+}
+
+async function forwardToMcpHandler(
+  handler: ReturnType<typeof createMcpHandler>,
+  request: ExpressRequest,
+  response: ExpressResponse,
+): Promise<void> {
+  const headers = new Headers();
+  for (const [name, value] of Object.entries(request.headers)) {
+    if (typeof value === "string") headers.set(name, value);
+    else if (Array.isArray(value)) headers.set(name, value.join(", "));
+  }
+  const hasBody = !["GET", "HEAD"].includes(request.method) && request.body !== undefined;
+  const webRequest = new Request(`${request.protocol}://${request.get("host")}${request.originalUrl}`, {
+    method: request.method,
+    headers,
+    ...(hasBody ? { body: JSON.stringify(request.body) } : {}),
+  });
+  const result = await handler.fetch(webRequest, { parsedBody: request.body });
+  response.status(result.status);
+  result.headers.forEach((value, name) => response.setHeader(name, value));
+  response.end(Buffer.from(await result.arrayBuffer()));
 }
 
 export function createHttpApp() {
-  const app = express();
   const host = process.env.MCP_HOST ?? "127.0.0.1";
   const configuredHosts = csv(process.env.MCP_ALLOWED_HOSTS);
-  const allowedHosts = configuredHosts.size > 0
+  const allowedHosts = configuredHosts.length > 0
     ? configuredHosts
-    : new Set(["127.0.0.1", "localhost", "[::1]"]);
-  const allowedOrigins = csv(process.env.MCP_ALLOWED_ORIGINS);
+    : ["127.0.0.1", "localhost", "::1"];
 
-  if (!["127.0.0.1", "localhost", "::1"].includes(host) && configuredHosts.size === 0) {
+  if (!["127.0.0.1", "localhost", "::1"].includes(host) && configuredHosts.length === 0) {
     throw new Error("MCP_ALLOWED_HOSTS is required for a non-loopback HTTP bind");
   }
 
-  app.disable("x-powered-by");
-  app.use(express.json({ limit: "1mb" }));
-  app.use((request, response, next) => {
-    const hostname = requestHost(request).replace(/:\d+$/, "");
-    if (!allowedHosts.has(hostname) && !allowedHosts.has(requestHost(request))) {
-      response.status(421).json({ error: "Host is not allowed" });
-      return;
-    }
-    const origin = request.headers.origin?.toLowerCase();
-    if (origin && !allowedOrigins.has(origin)) {
-      response.status(403).json({ error: "Origin is not allowed" });
-      return;
-    }
-    next();
+  const app = createMcpExpressApp({
+    host,
+    allowedHosts,
+    allowedOrigins: originHostnames(process.env.MCP_ALLOWED_ORIGINS),
+    jsonLimit: "1mb",
+  });
+  const handler = createMcpHandler(createSkillCatalogServer, {
+    onerror: (error) => process.stderr.write(`MCP request failed: ${error.message}\n`),
   });
 
+  app.disable("x-powered-by");
   app.get("/healthz", (_request, response) => response.json({ status: "ok", mode: "read-only" }));
-  app.post("/mcp", async (request, response) => {
-    const server = await createSkillCatalogServer();
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-    response.on("close", () => void server.close());
-    try {
-      await server.connect(transport);
-      await transport.handleRequest(request, response, request.body);
-    } catch (error) {
-      if (!response.headersSent) response.status(500).json({ error: "MCP request failed" });
-      process.stderr.write(`MCP request failed: ${error instanceof Error ? error.message : "unknown error"}\n`);
-    }
-  });
-  app.all("/mcp", (_request, response) => response.status(405).json({ error: "Use POST for stateless MCP" }));
+  app.all("/mcp", (request, response) => void forwardToMcpHandler(handler, request, response));
   return app;
 }
 
