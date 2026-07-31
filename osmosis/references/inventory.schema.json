@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/osmosis/references/inventory.schema.json",
+  "title": "Osmosis validator operator inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chain_id", "targets"],
+  "properties": {
+    "chain_id": {"const": "osmosis-1"},
+    "operator_label": {"type": "string", "minLength": 1, "maxLength": 128},
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "role", "runtime", "service", "daemon", "home", "rpc_local"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128},
+          "role": {"enum": ["validator", "sentry", "full-node", "archive", "public-rpc", "snapshot", "ibc", "other"]},
+          "host": {"type": "string", "maxLength": 255},
+          "ssh_target": {"type": "string", "maxLength": 255},
+          "local_execution": {"type": "boolean"},
+          "runtime": {"enum": ["systemd", "docker", "docker-compose", "kubernetes", "binary", "source", "managed", "other"]},
+          "service": {"type": "string", "minLength": 1, "maxLength": 128},
+          "daemon": {"type": "string", "default": "osmosisd"},
+          "home": {"type": "string", "default": "~/.osmosisd"},
+          "data_dir": {"type": "string"},
+          "rpc_local": {"type": "string", "format": "uri"},
+          "rpc_public": {"type": "string", "format": "uri"},
+          "rest_local": {"type": "string", "format": "uri"},
+          "grpc_local": {"type": "string"},
+          "valoper": {"type": "string", "pattern": "^osmovaloper[0-9a-z]+$"},
+          "valcons_hex": {"type": "string", "pattern": "^[0-9A-Fa-f]{40}$"},
+          "valcons_bech32": {"type": "string", "pattern": "^osmovalcons[0-9a-z]+$"},
+          "cosmovisor": {"type": "boolean"},
+          "expected_version": {"type": "string", "maxLength": 64},
+          "max_block_age_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+          "max_height_gap": {"type": "integer", "minimum": 0, "maximum": 100000},
+          "pruning": {"type": "string", "maxLength": 64},
+          "tx_indexer": {"enum": ["null", "kv", "psql", "other"]},
+          "public_services": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"enum": ["rpc", "rest", "grpc", "p2p", "snapshot", "metrics"]}
+          },
+          "relayer_services": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {"type": "string", "maxLength": 128}
+          },
+          "key_custody_ref": {"type": "string", "maxLength": 255},
+          "notes": {"type": "string", "maxLength": 1000}
+        },
+        "oneOf": [
+          {"required": ["ssh_target"]},
+          {"required": ["local_execution"], "properties": {"local_execution": {"const": true}}}
+        ]
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
     {"id":"limonata","title":"Limonata","category":"network","path":"limonata","description":"Limonata validator, full-node, encrypted-mempool, and DKG operations."},
     {"id":"monad","title":"Monad","category":"network","path":"monad","description":"Monad validator, execution, RPC, monitoring, and recovery operations."},
     {"id":"oraichain","title":"Oraichain","category":"network","path":"oraichain","description":"Oraichain validator, node, oracle, and bridge operations."},
+    {"id":"osmosis","title":"Osmosis","category":"network","path":"osmosis","description":"Osmosis validator, full-node, public API, snapshot, IBC, and recovery operations."},
     {"id":"provenance","title":"Provenance","category":"network","path":"provenance","description":"Provenance validator and full-node operations."},
     {"id":"shentu","title":"Shentu","category":"network","path":"shentu","description":"Shentu Chain validator operations."},
     {"id":"starknet","title":"Starknet","category":"network","path":"starknet","description":"Starknet development, full-node, validator, and attestation workflows."},

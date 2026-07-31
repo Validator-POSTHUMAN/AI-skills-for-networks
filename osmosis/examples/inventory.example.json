@@ -1,0 +1,34 @@
+{
+  "chain_id": "osmosis-1",
+  "operator_label": "example-operator",
+  "targets": [
+    {
+      "name": "primary-osmosis-validator",
+      "role": "validator",
+      "host": "validator.example.net",
+      "ssh_target": "operator@validator.example.net",
+      "runtime": "systemd",
+      "service": "osmosisd.service",
+      "daemon": "osmosisd",
+      "home": "/home/operator/.osmosisd",
+      "data_dir": "/home/operator/.osmosisd/data",
+      "rpc_local": "http://127.0.0.1:26657",
+      "rpc_public": "https://rpc-reference.example.net",
+      "rest_local": "http://127.0.0.1:1317",
+      "grpc_local": "127.0.0.1:9090",
+      "valoper": "osmovaloper1replacewithoperatorinventory",
+      "valcons_hex": "0123456789ABCDEF0123456789ABCDEF01234567",
+      "valcons_bech32": "osmovalcons1replacewithoperatorinventory",
+      "cosmovisor": true,
+      "expected_version": "refresh-from-official-release-before-use",
+      "max_block_age_seconds": 45,
+      "max_height_gap": 20,
+      "pruning": "custom",
+      "tx_indexer": "null",
+      "public_services": [],
+      "relayer_services": ["example-hermes-service"],
+      "key_custody_ref": "operator-secret-manager-reference",
+      "notes": "Fake sample only; replace every value from trusted private inventory."
+    }
+  ]
+}
