@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/hero-dark.svg" alt="AI Skills for Networks by POSTHUMAN">
+</p>
+
 # AI Skills for Networks
 
 This repository contains AI-agent skills for blockchain network operations.
@@ -45,6 +49,9 @@ valoper, or consensus-address input.
   operations for mainnet, including RPC/API/gRPC checks, signing, upgrades,
   snapshot recovery, CosmWasm, oracle, VRF, OraiDEX/OBridge/OraiBTC, and
   OraichainEVM guardrails.
+- [Osmosis](osmosis/SKILL.md) — Osmosis validator and full-node operations for
+  `osmosis-1`, including RPC/API/gRPC checks, signing, upgrades, snapshots,
+  IBC-facing validation, and safe recovery.
 - [Provenance](provenance/SKILL.md) — Provenance Blockchain provenanced
   validator and full-node operations for pio-mainnet-1, including
   CometBFT/RPC/API/gRPC checks, signing, upgrades, governance, snapshots,
