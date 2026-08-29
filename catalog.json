@@ -1,6 +1,7 @@
 {
   "version": 1,
   "skills": [
+    {"id":"atomone","title":"AtomOne","category":"network","path":"atomone","description":"AtomOne validator, Photon, REStake/Authz, governance, upgrade, snapshot, incident, and recovery operations."},
     {"id":"axelar","title":"Axelar","category":"network","path":"axelar","description":"Axelar validator and auxiliary-service operations."},
     {"id":"celestia","title":"Celestia","category":"network","path":"celestia","description":"Celestia consensus and data-availability node operations."},
     {"id":"cosmoshub","title":"Cosmos Hub","category":"network","path":"cosmoshub","description":"Cosmos Hub validator and full-node operations."},

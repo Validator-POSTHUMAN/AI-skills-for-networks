@@ -22,6 +22,9 @@ valoper, or consensus-address input.
 
 ## Skills
 
+- [AtomOne](atomone/SKILL.md) — AtomOne validator and full-node operations for
+  `atomone-1` and reviewed testnets, including Photon fees/mint diagnostics,
+  REStake/Authz, governance, upgrades, snapshots, incidents, and recovery.
 - [Axelar](axelar/SKILL.md) — Axelar validator operations for `axelar-dojo-1`,
   including `axelard`, `vald`, `tofnd`, broadcaster, and external-chain
   maintainer checks.
