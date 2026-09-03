@@ -1,123 +1,185 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/axelar/references/inventory.schema.json",
-  "title": "Axelar validator operator inventory",
+  "title": "Axelar classic and Amplifier operator inventory",
   "type": "object",
   "additionalProperties": false,
   "required": ["chain_id", "targets"],
   "properties": {
     "chain_id": {
       "type": "string",
-      "description": "Axelar chain ID, usually axelar-dojo-1 for mainnet."
+      "minLength": 1,
+      "description": "Exact Axelar chain ID for these targets."
     },
     "operator_label": {
       "type": "string",
-      "description": "Human-readable operator or team label. Do not include secrets."
+      "description": "Non-secret operator label."
     },
     "targets": {
       "type": "array",
       "minItems": 1,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "name",
-          "node_service",
-          "daemon",
-          "home",
-          "rpc_local",
-          "valoper",
-          "valcons",
-          "broadcaster"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Operator-local target label, moniker, or inventory name."
-          },
-          "host": {
-            "type": "string",
-            "description": "Host name, IP, or asset identifier."
-          },
-          "ssh_target": {
-            "type": "string",
-            "description": "Optional SSH target, for example user@example-host."
-          },
-          "local_execution": {
-            "type": "boolean",
-            "description": "Set true when commands should run on the current host."
-          },
-          "node_service": {
-            "type": "string",
-            "description": "Systemd service for axelard consensus node."
-          },
-          "vald_service": {
-            "type": "string",
-            "description": "Systemd service for axelard vald-start, if supervised by systemd."
-          },
-          "tofnd_service": {
-            "type": "string",
-            "description": "Systemd service for tofnd, if supervised by systemd."
-          },
-          "daemon": {
-            "type": "string",
-            "default": "axelard"
-          },
-          "home": {
-            "type": "string",
-            "default": "~/.axelar"
-          },
-          "rpc_local": {
-            "type": "string",
-            "format": "uri",
-            "description": "RPC endpoint reachable from the target host."
-          },
-          "rpc_public": {
-            "type": "string",
-            "format": "uri",
-            "description": "Optional public RPC endpoint for height comparison."
-          },
-          "tofnd_host": {
-            "type": "string",
-            "default": "127.0.0.1"
-          },
-          "valoper": {
-            "type": "string",
-            "pattern": "^axelarvaloper[0-9a-z]+$"
-          },
-          "valcons": {
-            "type": "string",
-            "pattern": "^[0-9A-Fa-f]{40}$"
-          },
-          "broadcaster": {
-            "type": "string",
-            "pattern": "^axelar1[0-9a-z]+$"
-          },
-          "maintainer_chains": {
-            "type": "array",
-            "items": {
-              "type": "string"
+      "items": { "$ref": "#/$defs/target" }
+    }
+  },
+  "$defs": {
+    "execution": {
+      "anyOf": [
+        { "required": ["ssh_target"] },
+        {
+          "required": ["local_execution"],
+          "properties": { "local_execution": { "const": true } }
+        }
+      ]
+    },
+    "handler": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chain_name", "handler_type", "service"],
+      "properties": {
+        "chain_name": { "type": "string", "minLength": 1 },
+        "handler_type": {
+          "enum": ["evm", "solana", "sui", "stellar", "xrpl"]
+        },
+        "service": { "type": "string", "minLength": 1 },
+        "binary": { "type": "string" },
+        "config_dir": { "type": "string" },
+        "health_reference": {
+          "type": "string",
+          "description": "Non-secret local runbook or monitor reference."
+        }
+      }
+    },
+    "chainClient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chain_name", "client_type", "service"],
+      "properties": {
+        "chain_name": { "type": "string", "minLength": 1 },
+        "client_type": { "enum": ["full-node", "light-client"] },
+        "service": { "type": "string", "minLength": 1 },
+        "rpc_local": {
+          "type": "string",
+          "format": "uri",
+          "description": "Credential-free local/private health endpoint only."
+        },
+        "binary": { "type": "string" },
+        "config_dir": { "type": "string" },
+        "health_reference": {
+          "type": "string",
+          "description": "Non-secret local runbook or monitor reference."
+        }
+      }
+    },
+    "target": {
+      "allOf": [
+        { "$ref": "#/$defs/execution" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "plane",
+            "node_service",
+            "daemon",
+            "home",
+            "rpc_local"
+          ],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "plane": {
+              "enum": ["classic-full-node", "classic-validator", "amplifier-verifier"]
             },
-            "description": "External chains this validator intentionally maintains."
-          },
-          "min_broadcaster_uaxl": {
-            "type": "string",
-            "pattern": "^[0-9]+$",
-            "description": "Minimum acceptable broadcaster balance in uaxl."
-          },
-          "cosmovisor": {
-            "type": "boolean"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Non-secret operator notes."
+            "host": { "type": "string" },
+            "ssh_target": { "type": "string" },
+            "local_execution": { "type": "boolean" },
+            "node_service": {
+              "type": "string",
+              "description": "The target's Axelar full-node service."
+            },
+            "daemon": { "type": "string", "default": "axelard" },
+            "home": { "type": "string" },
+            "rpc_local": { "type": "string", "format": "uri" },
+            "grpc_local": { "type": "string" },
+            "rpc_public": { "type": "string", "format": "uri" },
+            "metrics_local": { "type": "string", "format": "uri" },
+            "vald_service": { "type": "string" },
+            "tofnd_service": {
+              "type": "string",
+              "description": "Classic-validator-only tofnd service."
+            },
+            "tofnd_host": { "type": "string", "default": "127.0.0.1" },
+            "valoper": { "type": "string", "pattern": "^axelarvaloper[0-9a-z]+$" },
+            "valcons": { "type": "string", "pattern": "^[0-9A-Fa-f]{40}$" },
+            "broadcaster": { "type": "string", "pattern": "^axelar1[0-9a-z]+$" },
+            "maintainer_chains": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "min_broadcaster_uaxl": { "type": "string", "pattern": "^[0-9]+$" },
+            "cosmovisor": { "type": "boolean" },
+            "ampd_service": { "type": "string" },
+            "amplifier_tofnd_service": {
+              "type": "string",
+              "description": "Amplifier-only tofnd service; never the classic tofnd service."
+            },
+            "ampd_monitor": { "type": "string", "format": "uri" },
+            "ampd_grpc": { "type": "string" },
+            "axelar_node_separate_from_classic_validator": { "type": "boolean" },
+            "handlers": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/handler" }
+            },
+            "chain_clients": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/chainClient" }
+            },
+            "custody_reference": {
+              "type": "string",
+              "description": "Opaque non-secret reference; never key contents or a credential path."
+            },
+            "notes": { "type": "string" }
           }
         },
-        "anyOf": [
-          { "required": ["ssh_target"] },
-          { "required": ["local_execution"] }
-        ]
-      }
+        {
+          "if": {
+            "properties": { "plane": { "const": "classic-validator" } },
+            "required": ["plane"]
+          },
+          "then": {
+            "required": [
+              "vald_service",
+              "tofnd_service",
+              "valoper",
+              "valcons",
+              "broadcaster",
+              "maintainer_chains"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "plane": { "const": "amplifier-verifier" } },
+            "required": ["plane"]
+          },
+          "then": {
+            "required": [
+              "ampd_service",
+              "amplifier_tofnd_service",
+              "ampd_monitor",
+              "ampd_grpc",
+              "axelar_node_separate_from_classic_validator",
+              "handlers",
+              "chain_clients"
+            ],
+            "properties": {
+              "axelar_node_separate_from_classic_validator": { "const": true }
+            }
+          }
+        }
+      ]
     }
   }
 }

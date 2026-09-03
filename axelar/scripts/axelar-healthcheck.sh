@@ -8,6 +8,7 @@ VALD_SERVICE=""
 TOFND_SERVICE=""
 RPC=""
 PUBLIC_RPC=""
+EXPECTED_CHAIN_ID=""
 VALCONS=""
 VALOPER=""
 BROADCASTER=""
@@ -34,6 +35,7 @@ Example:
     --vald-service axelar-vald \
     --tofnd-service tofnd \
     --rpc http://127.0.0.1:<rpc-port> \
+    --expected-chain-id axelar-dojo-1 \
     --valcons <HEX_CONSENSUS_ADDRESS> \
     --valoper <axelarvaloper...> \
     --broadcaster <axelar1...> \
@@ -48,6 +50,7 @@ Options:
   --tofnd-host <host>           Host used by axelard health-check. Default: 127.0.0.1.
   --tofnd-port <port>           Tofnd gRPC port. Default: 50051.
   --public-rpc <url>            Optional public RPC for local/public height compare.
+  --expected-chain-id <id>      Fail if local RPC reports a different chain ID.
   --blocks <n>                  Recent blocks to inspect for signatures. Default: 5.
   --curl-timeout <sec>          Per-request curl timeout. Default: 8.
   --min-broadcaster-uaxl <n>    Minimum broadcaster balance. Default: 5000000 (5 AXL).
@@ -66,6 +69,7 @@ while [[ $# -gt 0 ]]; do
     --tofnd-service) TOFND_SERVICE="$2"; shift 2 ;;
     --rpc) RPC="$2"; shift 2 ;;
     --public-rpc) PUBLIC_RPC="$2"; shift 2 ;;
+    --expected-chain-id) EXPECTED_CHAIN_ID="$2"; shift 2 ;;
     --valcons) VALCONS="$2"; shift 2 ;;
     --valoper) VALOPER="$2"; shift 2 ;;
     --broadcaster) BROADCASTER="$2"; shift 2 ;;
@@ -147,7 +151,8 @@ ARGS_PAYLOAD="$(
     "$MIN_BROADCASTER_UAXL" \
     "$VALD_LOG_MINUTES" \
     "$MAX_BLOCK_AGE_SECONDS" \
-    "$CHAIN_LIST_ARG" |
+    "$CHAIN_LIST_ARG" \
+    "${EXPECTED_CHAIN_ID:-$EMPTY_ARG}" |
     base64 -w0
 )"
 
@@ -160,8 +165,8 @@ if ! command -v base64 >/dev/null 2>&1; then
 fi
 
 mapfile -d '' -t ARGS < <(printf '%s' "$1" | base64 --decode)
-if [[ "${#ARGS[@]}" -ne 18 ]]; then
-  echo "argument_payload_error=expected_18_fields_got_${#ARGS[@]}"
+if [[ "${#ARGS[@]}" -ne 19 ]]; then
+  echo "argument_payload_error=expected_19_fields_got_${#ARGS[@]}"
   exit 2
 fi
 
@@ -192,6 +197,7 @@ VALD_LOG_MINUTES="${ARGS[15]}"
 MAX_BLOCK_AGE_SECONDS="${ARGS[16]}"
 CHAIN_LIST_CSV="$(empty_to_blank "${ARGS[17]}")"
 CHAIN_LIST="${CHAIN_LIST_CSV//,/$'\n'}"
+EXPECTED_CHAIN_ID="$(empty_to_blank "${ARGS[18]}")"
 FAILURES=0
 
 require_cmd() {
@@ -252,12 +258,22 @@ if [[ -n "$TOFND_SERVICE" ]]; then
 fi
 
 STATUS_JSON="$(fetch_json "$RPC/status")"
+CHAIN_ID="$(printf '%s' "$STATUS_JSON" | jq -r '.result.node_info.network // empty')"
 HEIGHT="$(printf '%s' "$STATUS_JSON" | jq -r '.result.sync_info.latest_block_height')"
 if ! is_uint "$HEIGHT"; then
   echo "height_error=non_numeric_or_missing"
   exit 1
 fi
 
+echo "chain_id=$CHAIN_ID"
+if [[ -n "$EXPECTED_CHAIN_ID" ]]; then
+  if [[ "$CHAIN_ID" == "$EXPECTED_CHAIN_ID" ]]; then
+    echo "chain_id_status=ok"
+  else
+    echo "chain_id_status=mismatch"
+    FAILURES=$((FAILURES+1))
+  fi
+fi
 echo "$STATUS_JSON" | jq -r '
   "height=" + .result.sync_info.latest_block_height,
   "block_time=" + .result.sync_info.latest_block_time,
