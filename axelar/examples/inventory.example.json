@@ -3,24 +3,81 @@
   "operator_label": "example-validator-operator",
   "targets": [
     {
-      "name": "primary-axelar-validator",
-      "host": "validator-01.example.net",
-      "ssh_target": "operator@validator-01.example.net",
+      "name": "classic-validator-example",
+      "plane": "classic-validator",
+      "host": "classic-validator.example.net",
+      "ssh_target": "operator@classic-validator.example.net",
       "node_service": "axelard",
       "vald_service": "axelar-vald",
-      "tofnd_service": "tofnd",
+      "tofnd_service": "axelar-classic-tofnd",
       "daemon": "axelard",
-      "home": "~/.axelar",
+      "home": "/srv/axelar/classic",
       "rpc_local": "http://127.0.0.1:26657",
-      "rpc_public": "https://rpc.axelar.example.net",
+      "grpc_local": "127.0.0.1:9090",
+      "rpc_public": "https://rpc-reference.example.net",
+      "metrics_local": "http://127.0.0.1:26660/metrics",
       "tofnd_host": "127.0.0.1",
       "valoper": "axelarvaloper1exampleaddressreplacebeforeuse",
       "valcons": "0123456789ABCDEF0123456789ABCDEF01234567",
       "broadcaster": "axelar1examplebroadcasterreplacebeforeuse",
-      "cosmovisor": true,
-      "maintainer_chains": ["ethereum", "avalanche", "polygon"],
+      "maintainer_chains": ["ethereum", "avalanche"],
       "min_broadcaster_uaxl": "5000000",
-      "notes": "Fake sample values only. Replace every target field with operator inventory before use."
+      "cosmovisor": true,
+      "custody_reference": "approved-custody-record-classic-example",
+      "notes": "Fake values only. Replace every field from private operator inventory."
+    },
+    {
+      "name": "amplifier-verifier-example",
+      "plane": "amplifier-verifier",
+      "host": "amplifier-verifier.example.net",
+      "ssh_target": "operator@amplifier-verifier.example.net",
+      "node_service": "axelard-amplifier-fullnode",
+      "daemon": "axelard",
+      "home": "/srv/axelar/amplifier-node",
+      "rpc_local": "http://127.0.0.1:27657",
+      "grpc_local": "127.0.0.1:9190",
+      "rpc_public": "https://rpc-reference.example.net",
+      "ampd_service": "ampd",
+      "amplifier_tofnd_service": "axelar-amplifier-tofnd",
+      "ampd_monitor": "http://127.0.0.1:3000",
+      "ampd_grpc": "127.0.0.1:9290",
+      "axelar_node_separate_from_classic_validator": true,
+      "handlers": [
+        {
+          "chain_name": "flow",
+          "handler_type": "evm",
+          "service": "ampd-handler-flow",
+          "binary": "evm-handler",
+          "config_dir": "/srv/ampd/handlers/flow",
+          "health_reference": "monitor/ampd-flow"
+        },
+        {
+          "chain_name": "sui",
+          "handler_type": "sui",
+          "service": "ampd-handler-sui",
+          "binary": "sui-handler",
+          "config_dir": "/srv/ampd/handlers/sui",
+          "health_reference": "monitor/ampd-sui"
+        }
+      ],
+      "chain_clients": [
+        {
+          "chain_name": "flow",
+          "client_type": "full-node",
+          "service": "flow-fullnode",
+          "rpc_local": "http://127.0.0.1:8545",
+          "health_reference": "monitor/flow-fullnode"
+        },
+        {
+          "chain_name": "sui",
+          "client_type": "full-node",
+          "service": "sui-fullnode",
+          "rpc_local": "http://127.0.0.1:9000",
+          "health_reference": "monitor/sui-fullnode"
+        }
+      ],
+      "custody_reference": "approved-custody-record-amplifier-example",
+      "notes": "Fake values only. Amplifier uses a separate Axelar node and separate tofnd."
     }
   ]
 }

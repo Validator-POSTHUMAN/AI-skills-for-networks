@@ -25,9 +25,10 @@ valoper, or consensus-address input.
 - [AtomOne](atomone/SKILL.md) — AtomOne validator and full-node operations for
   `atomone-1` and reviewed testnets, including Photon fees/mint diagnostics,
   REStake/Authz, governance, upgrades, snapshots, incidents, and recovery.
-- [Axelar](axelar/SKILL.md) — Axelar validator operations for `axelar-dojo-1`,
-  including `axelard`, `vald`, `tofnd`, broadcaster, and external-chain
-  maintainer checks.
+- [Axelar](axelar/SKILL.md) — Axelar classic full-node/validator operations
+  (`axelard`, `vald`, dedicated `tofnd`, broadcaster, and maintainers) plus the
+  separate Amplifier verifier plane (`ampd`, dedicated `tofnd`, per-chain
+  handlers/clients, onboarding review, and monitoring).
 - [Celestia](celestia/SKILL.md) — Celestia mainnet consensus validator and
   full-node operations plus Data Availability bridge/full/light node checks,
   including `celestia-appd`, `celestia-node`, public endpoints, snapshots,
