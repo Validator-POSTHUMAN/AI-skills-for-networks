@@ -36,6 +36,11 @@ valoper, or consensus-address input.
 - [Cosmos Hub](cosmoshub/SKILL.md) — Cosmos Hub Gaia validator and full-node
   operations for cosmoshub-4, including gaiad, CometBFT signing, provider
   security, IBC-facing checks, governance, upgrades, snapshots, and recovery.
+- [Espresso](espresso/SKILL.md) — Espresso validator and query-node operations
+  for Mainnet and Decaf, including consensus view liveness, participation
+  scoring, cliquenet P2P triage, BLS/Schnorr/x25519 key custody, `staking-cli`
+  registration and rotation on Ethereum, reward claims, storage pruning, and
+  upgrades.
 - [FastLane Sidecar](fastlane-sidecar/SKILL.md) — FastLane / shMonad MEV
   sidecar operations for Monad validators, including onboarding order,
   rootless Docker isolation, mempool IPC wiring, release verification,

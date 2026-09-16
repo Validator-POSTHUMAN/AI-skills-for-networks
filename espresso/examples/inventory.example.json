@@ -1,0 +1,58 @@
+{
+  "network": "mainnet",
+  "operator_label": "example-validator-operator",
+  "stake_table_contract": "0xCeF474D372B5b09dEfe2aF187bf17338Dc704451",
+  "query_service": "https://query.main.net.espresso.network",
+  "targets": [
+    {
+      "name": "primary-espresso-validator",
+      "role": "validator",
+      "host": "espresso-01.example.net",
+      "ssh_target": "operator@espresso-01.example.net",
+      "local_execution": false,
+      "api_base": "http://127.0.0.1:8080",
+      "metrics_path": "/v1/status/metrics",
+      "container": {
+        "runtime": "docker-compose",
+        "service_name": "espresso-node",
+        "image": "ghcr.io/espressosystems/espresso-network/espresso-node:20260910",
+        "compose_file": "/opt/espresso/docker-compose.yml",
+        "env_file": "/opt/espresso/.env"
+      },
+      "p2p": {
+        "registered_address": "espresso-01.example.net:9977",
+        "bind_address": "0.0.0.0:9977",
+        "public_port": 9977,
+        "x25519_public_key": "X25519_PK~EXAMPLE_PUBLIC_KEY_ONLY"
+      },
+      "validator": {
+        "ethereum_address": "0x0000000000000000000000000000000000000000",
+        "account_index": 0,
+        "custody": "ledger",
+        "bls_public_key": "BLS_VER_KEY~EXAMPLE_PUBLIC_KEY_ONLY",
+        "schnorr_public_key": "SCHNORR_VER_KEY~EXAMPLE_PUBLIC_KEY_ONLY",
+        "commission_percent": 5,
+        "metadata_uri": "https://example.net/espresso-metadata.json",
+        "key_file": "/opt/espresso/keys/0.env"
+      },
+      "storage": {
+        "backend": "sqlite",
+        "path": "/opt/espresso/store/",
+        "pruning_enabled": true,
+        "target_retention": "14d",
+        "minimum_retention": "14d",
+        "provisioned_disk": "500GB"
+      },
+      "l1": {
+        "provider_label": "example-ethereum-provider",
+        "websocket_configured": true
+      },
+      "expected_image_tag": "20260910",
+      "monitoring": {
+        "prometheus_job": "espresso",
+        "alert_route_label": "espresso-mainnet",
+        "participation_check": true
+      }
+    }
+  ]
+}

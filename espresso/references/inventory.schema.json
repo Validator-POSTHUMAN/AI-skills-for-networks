@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/espresso/references/inventory.schema.json",
+  "title": "Espresso validator and query-node operator inventory",
+  "description": "Non-secret operator inventory for Espresso nodes. Never place private keys, mnemonics, provider API keys, or bot tokens in a document of this shape.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "targets"],
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["mainnet", "decaf"],
+      "description": "Espresso network this inventory describes. Mainnet settles on Ethereum, Decaf on Ethereum Sepolia."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator or team label. Do not include secrets."
+    },
+    "stake_table_contract": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$",
+      "description": "Stake table address for this network, as configured on the nodes."
+    },
+    "query_service": {
+      "type": "string",
+      "format": "uri",
+      "description": "Query service used to read participation scores and the active stake table."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "api_base", "role"],
+        "properties": {
+          "name": {"type": "string"},
+          "role": {
+            "type": "string",
+            "enum": ["validator", "query", "archive"],
+            "description": "A validator signs consensus; query and archive nodes serve the availability APIs."
+          },
+          "host": {"type": "string"},
+          "ssh_target": {"type": "string"},
+          "local_execution": {"type": "boolean"},
+          "api_base": {
+            "type": "string",
+            "format": "uri",
+            "description": "Local API base URL, for example http://127.0.0.1:8080."
+          },
+          "metrics_path": {
+            "type": "string",
+            "description": "Path that answers Prometheus metrics on this release, usually /v1/status/metrics or /status/metrics."
+          },
+          "container": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "runtime": {"type": "string", "enum": ["docker-compose", "docker", "systemd", "kubernetes"]},
+              "service_name": {"type": "string"},
+              "image": {"type": "string", "description": "Fully qualified image reference including the pinned tag."},
+              "compose_file": {"type": "string"},
+              "env_file": {"type": "string", "description": "Path only. Never inline the file contents."}
+            }
+          },
+          "p2p": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "registered_address": {"type": "string", "description": "host:port exactly as registered in the stake table."},
+              "bind_address": {"type": "string"},
+              "public_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+              "x25519_public_key": {"type": "string", "description": "Public key only, X25519_PK~ form."}
+            }
+          },
+          "validator": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ethereum_address": {"type": "string", "pattern": "^0x[0-9a-fA-F]{40}$"},
+              "account_index": {"type": "integer", "minimum": 0},
+              "custody": {
+                "type": "string",
+                "enum": ["ledger", "signing-host", "mnemonic-env", "multisig"],
+                "description": "How the registering Ethereum wallet is held. Never record the material itself."
+              },
+              "bls_public_key": {"type": "string", "description": "BLS_VER_KEY~ form; used to read participation scores."},
+              "schnorr_public_key": {"type": "string", "description": "SCHNORR_VER_KEY~ form."},
+              "commission_percent": {"type": "number", "minimum": 0, "maximum": 100},
+              "metadata_uri": {"type": "string", "format": "uri"},
+              "key_file": {"type": "string", "description": "Path only."}
+            }
+          },
+          "storage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "backend": {"type": "string", "enum": ["sqlite", "postgres"]},
+              "path": {"type": "string"},
+              "pruning_enabled": {"type": "boolean"},
+              "target_retention": {"type": "string", "description": "Duration with one unit, for example 14d."},
+              "minimum_retention": {"type": "string"},
+              "provisioned_disk": {"type": "string"}
+            }
+          },
+          "l1": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "provider_label": {"type": "string", "description": "Provider name only. The URL usually contains an API key — keep it out of this file."},
+              "websocket_configured": {"type": "boolean"}
+            }
+          },
+          "expected_image_tag": {"type": "string"},
+          "monitoring": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "prometheus_job": {"type": "string"},
+              "alert_route_label": {"type": "string"},
+              "participation_check": {"type": "boolean"}
+            }
+          }
+        }
+      }
+    }
+  }
+}
