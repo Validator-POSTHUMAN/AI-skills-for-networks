@@ -54,7 +54,12 @@ staking module.
 - Staking-pool factory: `poolv1.near` (mainnet), `pool.f863973.m0` (testnet).
   Pool accounts are `<name>.poolv1.near` / `<name>.pool.f863973.m0`.
 - Pool creation costs a 30 NEAR attached deposit for contract storage.
-- Seat price: set by the 300th largest staking proposal, floor 25,500 NEAR.
+- Seat price: read it, never quote it. `docs.near.org` describes the threshold
+  as the 300th largest staking proposal with a 25,500 NEAR floor; mainnet on
+  2026-09-17 held 415 current validators with a smallest stake of 10,989 NEAR,
+  so the documented floor is not what the protocol is enforcing. Take the live
+  minimum from the validator set:
+  `jq '[.result.current_validators[].stake | tonumber] | min / 1e24 | floor'`.
 - Validator roles: top 100 by stake are block/chunk producers; the rest are
   chunk validators, which do not track shards and endorse chunks only.
 - Reward target: 2.5% of total supply per year, paid regardless of fees.
