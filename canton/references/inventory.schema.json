@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/canton/references/inventory.schema.json",
+  "title": "Canton Network validator operator inventory",
+  "description": "Non-secret inventory an agent needs to operate a Canton Network validator. Never place onboarding secrets, identities dumps, database passwords, wallet passwords or alert tokens in this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["validators"],
+  "properties": {
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator label. Do not include secrets."
+    },
+    "validators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "network", "host", "compose_project"],
+        "properties": {
+          "name": {"type": "string"},
+          "network": {
+            "type": "string",
+            "enum": ["mainnet", "testnet", "devnet"],
+            "description": "Selects the /info endpoint and the scan access expectation. MainNet and TestNet scan are reachable only from onboarded validator IPs."
+          },
+          "host": {
+            "type": "string",
+            "description": "SSH target, or 'local' when the agent runs on the validator host."
+          },
+          "compose_project": {
+            "type": "string",
+            "default": "splice-validator",
+            "description": "Docker Compose project name prefix. Container names derive from it, and the monitoring stack joins <project>_splice_validator."
+          },
+          "compose_working_dir": {
+            "type": "string",
+            "description": "Absolute path of the running Compose project, e.g. ~/.canton/0.8.0/splice-node/docker-compose/validator. Read it from the container label rather than trusting a 'current' symlink."
+          },
+          "party_hint": {
+            "type": "string",
+            "description": "Validator party hint passed to start.sh -p. Must stay identical across a re-onboarding or the recovered party is a different party."
+          },
+          "party_id": {
+            "type": "string",
+            "description": "Full party ID including the namespace fingerprint. Public."
+          },
+          "participant_id": {
+            "type": "string",
+            "description": "Participant identifier passed to start.sh -P after a re-onboarding. Must be reused on every later restart."
+          },
+          "migration_id": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Network migration ID. Also the suffix of the participant database name (participant-<migration_id>). Verify against /info before relying on it."
+          },
+          "sponsor_sv_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Sponsoring Super Validator URL passed to start.sh -s."
+          },
+          "scan_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Scan base URL passed to start.sh -c."
+          },
+          "auth_disabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "True when the deployment runs compose-disable-auth.yaml. Safe only while nginx stays bound to 127.0.0.1."
+          },
+          "wallet_bind": {
+            "type": "string",
+            "default": "127.0.0.1:8888",
+            "description": "Bind address of the nginx fronting the wallet and ANS UIs. Anything other than a loopback address is a finding."
+          },
+          "backup": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Backup destinations. Credentials never belong here.",
+            "properties": {
+              "database_target": {
+                "type": "string",
+                "description": "Where the Postgres dumps are shipped, e.g. an rsync path or an object-store bucket name."
+              },
+              "identities_target": {
+                "type": "string",
+                "description": "Which secret manager holds the identities dump. The dump itself must never be stored in this inventory or beside the database dumps."
+              },
+              "interval_hours": {"type": "number", "default": 4},
+              "retention_days": {
+                "type": "integer",
+                "description": "Database dumps older than 30 days cannot restore a participant, so retention below 30 days is only safe with a current identities backup."
+              }
+            }
+          },
+          "monitoring": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "prometheus_url": {"type": "string", "format": "uri"},
+              "grafana_url": {"type": "string", "format": "uri"},
+              "max_sync_lag_ms": {"type": "integer", "default": 60000}
+            }
+          },
+          "notes": {"type": "string"}
+        }
+      }
+    }
+  }
+}
