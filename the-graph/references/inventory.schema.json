@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/the-graph/references/inventory.schema.json",
+  "title": "The Graph indexer operator inventory",
+  "description": "Non-secret inventory an agent needs to operate a Graph Protocol indexer. Never place mnemonics, private keys, API keys, database passwords or alert tokens in this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "indexers"],
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["arbitrum-one", "arbitrum-sepolia"],
+      "description": "Protocol network the indexer operates on."
+    },
+    "operator_label": {
+      "type": "string",
+      "description": "Human-readable operator label. Do not include secrets."
+    },
+    "indexers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "host", "compose_path", "staking_address"],
+        "properties": {
+          "name": {"type": "string"},
+          "host": {
+            "type": "string",
+            "description": "SSH target or 'local' when the agent runs on the indexer host."
+          },
+          "compose_path": {
+            "type": "string",
+            "description": "Absolute path of the running Compose project. The source of truth for the stack, not a stale clone."
+          },
+          "cli_container": {"type": "string", "default": "cli"},
+          "staking_address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Indexer address holding the stake. Public."
+          },
+          "operator_address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Operator address that signs protocol transactions. Public; its key material is not in this file."
+          },
+          "public_endpoint": {
+            "type": "string",
+            "description": "Registered public indexer endpoint, e.g. https://index.example.com/"
+          },
+          "status_url": {
+            "type": "string",
+            "description": "graph-node indexing status API, reachable privately, e.g. http://127.0.0.1:8030/graphql"
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "graph_node": {"type": "string"},
+              "indexer_agent": {"type": "string"},
+              "indexer_service": {"type": "string"},
+              "indexer_tap": {"type": "string"}
+            },
+            "description": "Private Prometheus metrics endpoints."
+          },
+          "archive_rpc_label": {
+            "type": "string",
+            "description": "Label of the EIP-1898 archive RPC used by graph-node. Use a label, not a credentialed URL."
+          },
+          "expected_deployments": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Deployment IPFS hashes expected to be synced and healthy."
+          },
+          "network_subgraph_deployment": {
+            "type": "string",
+            "description": "Locally hosted network subgraph deployment used for on-chain reads."
+          },
+          "allocation_rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["deployment", "decision_basis"],
+              "properties": {
+                "deployment": {"type": "string"},
+                "decision_basis": {
+                  "type": "string",
+                  "enum": ["always", "never", "rules", "offchain"]
+                },
+                "allocation_amount_grt": {"type": "string"},
+                "allocation_lifetime_epochs": {"type": "integer", "minimum": 1},
+                "auto_renewal": {"type": "boolean"},
+                "parallel_allocations": {"type": "integer", "minimum": 1}
+              }
+            }
+          },
+          "thresholds": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "min_operator_eth": {"type": "number", "minimum": 0},
+              "max_block_lag": {"type": "integer", "minimum": 0},
+              "poi_age_warn_days": {"type": "integer", "minimum": 1, "maximum": 27},
+              "disk_used_percent_warn": {"type": "integer", "minimum": 1, "maximum": 99}
+            }
+          },
+          "secret_locations": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "env_file": {
+                "type": "string",
+                "description": "Path of the environment file holding the operator seed and database credentials. Path only — never its contents."
+              },
+              "alert_token_file": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "gated_operations": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Operations requiring explicit operator approval before the agent proceeds.",
+      "default": [
+        "stake or provision change",
+        "reward or query fee cut change",
+        "any on-chain transaction",
+        "node data replacement or deletion",
+        "public endpoint or DNS change",
+        "adding tap.trusted_senders",
+        "key material movement or exposure"
+      ]
+    }
+  }
+}

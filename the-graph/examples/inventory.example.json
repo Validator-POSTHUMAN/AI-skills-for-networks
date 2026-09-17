@@ -1,0 +1,61 @@
+{
+  "network": "arbitrum-one",
+  "operator_label": "example-operator",
+  "indexers": [
+    {
+      "name": "indexer-primary",
+      "host": "local",
+      "compose_path": "/opt/graph/graphprotocol-mainnet-docker",
+      "cli_container": "cli",
+      "staking_address": "0x0000000000000000000000000000000000000001",
+      "operator_address": "0x0000000000000000000000000000000000000002",
+      "public_endpoint": "https://index.example.com/",
+      "status_url": "http://127.0.0.1:8030/graphql",
+      "metrics": {
+        "graph_node": "http://127.0.0.1:8040/metrics",
+        "indexer_agent": "http://127.0.0.1:7300/metrics",
+        "indexer_service": "http://127.0.0.1:7301/metrics",
+        "indexer_tap": "http://127.0.0.1:7302/metrics"
+      },
+      "archive_rpc_label": "arbitrum-one-archive-primary",
+      "expected_deployments": [
+        "QmExampleDeploymentHash1111111111111111111111",
+        "QmExampleDeploymentHash2222222222222222222222"
+      ],
+      "network_subgraph_deployment": "QmExampleNetworkSubgraphHash333333333333333",
+      "allocation_rules": [
+        {
+          "deployment": "QmExampleDeploymentHash1111111111111111111111",
+          "decision_basis": "always",
+          "allocation_amount_grt": "250000",
+          "allocation_lifetime_epochs": 20,
+          "auto_renewal": true,
+          "parallel_allocations": 1
+        },
+        {
+          "deployment": "global",
+          "decision_basis": "rules"
+        }
+      ],
+      "thresholds": {
+        "min_operator_eth": 0.05,
+        "max_block_lag": 200,
+        "poi_age_warn_days": 21,
+        "disk_used_percent_warn": 85
+      },
+      "secret_locations": {
+        "env_file": "/opt/graph/graphprotocol-mainnet-docker/.env",
+        "alert_token_file": "/etc/alertmanager/telegram_bot_token"
+      }
+    }
+  ],
+  "gated_operations": [
+    "stake or provision change",
+    "reward or query fee cut change",
+    "any on-chain transaction",
+    "node data replacement or deletion",
+    "public endpoint or DNS change",
+    "adding tap.trusted_senders",
+    "key material movement or exposure"
+  ]
+}
