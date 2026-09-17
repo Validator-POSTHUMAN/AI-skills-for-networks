@@ -1,0 +1,70 @@
+{
+  "network": "mainnet",
+  "pool": {
+    "account_id": "example.poolv1.near",
+    "factory": "poolv1.near",
+    "owner_account_id": "example-owner.near",
+    "owner_key_custody": "hardware-wallet",
+    "reward_fee_percent": 5,
+    "ping": {
+      "automated": true,
+      "unit": "near-ping.timer",
+      "signer_key_type": "function-call-access-key"
+    }
+  },
+  "nodes": [
+    {
+      "name": "validator-a",
+      "role": "validator",
+      "ssh_target": "operator@validator-a.example.internal",
+      "near_home": "/home/near/.near",
+      "service_name": "neard",
+      "binary_path": "/usr/local/bin/neard",
+      "neard_version": "2.13.4",
+      "local_rpc": "http://127.0.0.1:3030",
+      "rpc_exposure": "loopback",
+      "p2p_port": 24567,
+      "monitoring": {
+        "prometheus_job": "near-validator",
+        "validator_watcher_url": "http://127.0.0.1:8080/metrics",
+        "alert_channel": "operator-alerts"
+      }
+    },
+    {
+      "name": "rpc-a",
+      "role": "rpc",
+      "ssh_target": "operator@rpc-a.example.internal",
+      "near_home": "/home/near/.near",
+      "service_name": "neard",
+      "neard_version": "2.13.4",
+      "local_rpc": "http://127.0.0.1:3030",
+      "rpc_exposure": "public",
+      "p2p_port": 24567
+    },
+    {
+      "name": "archival-a",
+      "role": "archival",
+      "ssh_target": "operator@archival-a.example.internal",
+      "near_home": "/home/near/.near",
+      "service_name": "neard",
+      "neard_version": "2.13.4",
+      "local_rpc": "http://127.0.0.1:3030",
+      "rpc_exposure": "private-interface",
+      "split_storage": {
+        "enabled": true,
+        "hot_path": "hot-data",
+        "cold_path": "cold-data",
+        "view_client_enabled": true
+      }
+    }
+  ],
+  "public_rpc": [
+    "https://free.rpc.fastnear.com",
+    "https://near.drpc.org"
+  ],
+  "change_policy": {
+    "restart_allowed": true,
+    "transactions_require_approval": true,
+    "freeze_windows": []
+  }
+}

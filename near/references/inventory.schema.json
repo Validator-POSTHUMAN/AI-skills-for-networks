@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/near/references/inventory.schema.json",
+  "title": "NEAR operator inventory",
+  "description": "Non-secret inventory for NEAR nodes an agent may operate. Never place private keys, seed phrases or credentials in a file that follows this schema.",
+  "type": "object",
+  "required": ["network", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "network": {
+      "type": "string",
+      "enum": ["mainnet", "testnet", "localnet"],
+      "description": "NEAR chain id this inventory describes."
+    },
+    "pool": {
+      "type": "object",
+      "description": "Staking pool this operator runs, if any.",
+      "required": ["account_id"],
+      "additionalProperties": false,
+      "properties": {
+        "account_id": {
+          "type": "string",
+          "description": "Full pool account, e.g. example.poolv1.near or example.pool.f863973.m0."
+        },
+        "factory": {
+          "type": "string",
+          "enum": ["poolv1.near", "pool.f863973.m0"],
+          "description": "Staking-pool factory the pool was created through."
+        },
+        "owner_account_id": {
+          "type": "string",
+          "description": "Account holding the pool owner full-access key. The key itself is never stored here."
+        },
+        "owner_key_custody": {
+          "type": "string",
+          "enum": ["hardware-wallet", "operator-keychain", "offline", "unknown"],
+          "description": "Where the owner key lives. It must not be on a validator host."
+        },
+        "reward_fee_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "ping": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "automated": { "type": "boolean" },
+            "unit": { "type": "string", "description": "systemd timer or cron entry that runs ping." },
+            "signer_key_type": {
+              "type": "string",
+              "enum": ["function-call-access-key", "full-access-key", "unknown"],
+              "description": "A function-call access key scoped to the pool is the expected value."
+            }
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "role": {
+            "type": "string",
+            "enum": ["validator", "rpc", "archival"],
+            "description": "Matches the --download-config profile the node was initialised with."
+          },
+          "ssh_target": {
+            "type": "string",
+            "description": "SSH target the agent may use. Omit for local-only operation."
+          },
+          "near_home": { "type": "string", "default": "~/.near" },
+          "service_name": { "type": "string", "default": "neard" },
+          "binary_path": { "type": "string", "default": "/usr/local/bin/neard" },
+          "neard_version": { "type": "string" },
+          "local_rpc": {
+            "type": "string",
+            "default": "http://127.0.0.1:3030",
+            "description": "Use 127.0.0.1, not localhost."
+          },
+          "rpc_exposure": {
+            "type": "string",
+            "enum": ["loopback", "private-interface", "public"],
+            "description": "Public exposure on a validator is a deliberate, recorded decision."
+          },
+          "p2p_port": { "type": "integer", "default": 24567 },
+          "split_storage": {
+            "type": "object",
+            "description": "Archival nodes only.",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "hot_path": { "type": "string" },
+              "cold_path": { "type": "string" },
+              "view_client_enabled": { "type": "boolean" }
+            }
+          },
+          "monitoring": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "prometheus_job": { "type": "string" },
+              "validator_watcher_url": { "type": "string" },
+              "alert_channel": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "public_rpc": {
+      "type": "array",
+      "description": "Independent endpoints used for cross-checks.",
+      "items": { "type": "string" }
+    },
+    "change_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "restart_allowed": { "type": "boolean" },
+        "transactions_require_approval": {
+          "type": "boolean",
+          "description": "Any staking-pool transaction that moves funds or changes commission or the staking key."
+        },
+        "freeze_windows": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}
