@@ -1,0 +1,60 @@
+{
+  "operator_label": "example-operator",
+  "validators": [
+    {
+      "name": "example-mainnet",
+      "network": "mainnet",
+      "host": "valoper@validator.example.com",
+      "compose_project": "splice-validator",
+      "compose_working_dir": "/home/valoper/.canton/0.7.5/splice-node/docker-compose/validator",
+      "party_hint": "Example-validator-1",
+      "party_id": "Example-validator-1::1220REPLACE_WITH_YOUR_NAMESPACE_FINGERPRINT",
+      "migration_id": 4,
+      "sponsor_sv_url": "https://sv.sv-2.global.canton.network.digitalasset.com",
+      "scan_url": "https://scan.sv-2.global.canton.network.digitalasset.com",
+      "auth_disabled": true,
+      "wallet_bind": "127.0.0.1:8888",
+      "backup": {
+        "database_target": "backup.example.com:/srv/canton-backups/mainnet",
+        "identities_target": "vault://example/canton/mainnet/identities",
+        "interval_hours": 4,
+        "retention_days": 30
+      },
+      "monitoring": {
+        "prometheus_url": "http://127.0.0.1:9091",
+        "grafana_url": "http://127.0.0.1:3001",
+        "max_sync_lag_ms": 60000
+      },
+      "notes": "MainNet scan answers only from this host's whitelisted IP. A 403 from anywhere else is expected."
+    },
+    {
+      "name": "example-testnet",
+      "network": "testnet",
+      "host": "valoper@testnet.example.com",
+      "compose_project": "splice-validator",
+      "compose_working_dir": "/home/valoper/.canton/0.8.0/splice-node/docker-compose/validator",
+      "party_hint": "Example-TestNet-1",
+      "migration_id": 1,
+      "sponsor_sv_url": "https://sv.sv-2.test.global.canton.network.digitalasset.com",
+      "scan_url": "https://scan.sv-2.test.global.canton.network.digitalasset.com",
+      "wallet_bind": "127.0.0.1:8888",
+      "backup": {
+        "database_target": "backup.example.com:/srv/canton-backups/testnet",
+        "interval_hours": 4,
+        "retention_days": 7
+      }
+    },
+    {
+      "name": "example-devnet",
+      "network": "devnet",
+      "host": "valoper@devnet.example.com",
+      "compose_project": "splice-devnet",
+      "party_hint": "Example",
+      "migration_id": 1,
+      "sponsor_sv_url": "https://sv.sv-2.dev.global.canton.network.digitalasset.com",
+      "scan_url": "https://scan.sv-1.dev.global.canton.network.digitalasset.com",
+      "wallet_bind": "127.0.0.1:8888",
+      "notes": "DevNet scan is public and resets periodically. After a reset the node is rebuilt, not upgraded."
+    }
+  ]
+}
