@@ -8,6 +8,7 @@
     {"id":"celestia","title":"Celestia","category":"network","path":"celestia","description":"Celestia consensus and data-availability node operations."},
     {"id":"cosmoshub","title":"Cosmos Hub","category":"network","path":"cosmoshub","description":"Cosmos Hub validator and full-node operations."},
     {"id":"espresso","title":"Espresso","category":"network","path":"espresso","description":"Espresso validator, query-node, staking, monitoring, and P2P operations."},
+    {"id":"ethereum","title":"Ethereum","category":"network","path":"ethereum","description":"Ethereum execution and consensus client operations, validator creation and lifecycle, withdrawal credentials, exits and consolidations, MEV-Boost, monitoring, security hardening, and fork upgrades."},
     {"id":"fastlane-sidecar","title":"FastLane Sidecar","category":"network","path":"fastlane-sidecar","description":"FastLane and shMonad sidecar operations for Monad validators."},
     {"id":"fuel","title":"Fuel","category":"network","path":"fuel","description":"Fuel full-node, sequencer, validator, bridge, and Sway operations."},
     {"id":"limonata","title":"Limonata","category":"network","path":"limonata","description":"Limonata validator, full-node, encrypted-mempool, and DKG operations."},
