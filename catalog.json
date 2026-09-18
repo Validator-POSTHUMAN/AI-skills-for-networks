@@ -2,6 +2,7 @@
   "version": 1,
   "skills": [
     {"id":"atomone","title":"AtomOne","category":"network","path":"atomone","description":"AtomOne validator, Photon, REStake/Authz, governance, upgrade, snapshot, incident, and recovery operations."},
+    {"id":"arc","title":"Arc Network","category":"network","path":"arc","description":"Arc Network follow-node operations: arc-node-execution and arc-node-consensus, snapshot bootstrap and el-profile choices, relay-endpoint follow health, the arc RPC namespace, wall-clock hardfork deadlines, and RPC exposure hardening."},
     {"id":"axelar","title":"Axelar","category":"network","path":"axelar","description":"Axelar classic validator and separate Amplifier verifier setup, monitoring, and recovery operations."},
     {"id":"base","title":"Base","category":"network","path":"base","description":"Base OP Stack L2 node operations: base-reth-node and base-consensus, V2 snapshot restore, node-type and pruning choices, L1 derivation health, Flashblocks, RPC exposure hardening, and fork-deadline upgrades."},
     {"id":"bitcoin","title":"Bitcoin","category":"network","path":"bitcoin","description":"Bitcoin Core node, RPC and indexer, Lightning, mining, monitoring, and recovery operations."},

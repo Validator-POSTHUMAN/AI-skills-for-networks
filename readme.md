@@ -25,6 +25,11 @@ valoper, or consensus-address input.
 - [AtomOne](atomone/SKILL.md) — AtomOne validator and full-node operations for
   `atomone-1` and reviewed testnets, including Photon fees/mint diagnostics,
   REStake/Authz, governance, upgrades, snapshots, incidents, and recovery.
+- [Arc Network](arc/SKILL.md) — Arc follow-node operations with
+  `arc-node-execution` and `arc-node-consensus`: snapshot-only bootstrap and the
+  permanent `--el-profile` choice, relay-endpoint follow health and the frozen
+  head that looks healthy, the `arc` RPC namespace, RPC exposure hardening, and
+  hardforks that activate on a wall-clock timestamp rather than a block height.
 - [Axelar](axelar/SKILL.md) — Axelar classic full-node/validator operations
   (`axelard`, `vald`, dedicated `tofnd`, broadcaster, and maintainers) plus the
   separate Amplifier verifier plane (`ampd`, dedicated `tofnd`, per-chain
