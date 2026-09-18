@@ -3,6 +3,7 @@
   "skills": [
     {"id":"atomone","title":"AtomOne","category":"network","path":"atomone","description":"AtomOne validator, Photon, REStake/Authz, governance, upgrade, snapshot, incident, and recovery operations."},
     {"id":"axelar","title":"Axelar","category":"network","path":"axelar","description":"Axelar classic validator and separate Amplifier verifier setup, monitoring, and recovery operations."},
+    {"id":"bitcoin","title":"Bitcoin","category":"network","path":"bitcoin","description":"Bitcoin Core node, RPC and indexer, Lightning, mining, monitoring, and recovery operations."},
     {"id":"canton","title":"Canton Network","category":"network","path":"canton","description":"Canton Network validator operations on MainNet, TestNet and DevNet: Splice stack health, sync and automation triggers, scan API access, identities and database backups, disaster recovery, upgrades and security hardening."},
     {"id":"celestia","title":"Celestia","category":"network","path":"celestia","description":"Celestia consensus and data-availability node operations."},
     {"id":"cosmoshub","title":"Cosmos Hub","category":"network","path":"cosmoshub","description":"Cosmos Hub validator and full-node operations."},

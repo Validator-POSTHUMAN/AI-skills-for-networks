@@ -29,6 +29,10 @@ valoper, or consensus-address input.
   (`axelard`, `vald`, dedicated `tofnd`, broadcaster, and maintainers) plus the
   separate Amplifier verifier plane (`ampd`, dedicated `tofnd`, per-chain
   handlers/clients, onboarding review, and monitoring).
+- [Bitcoin](bitcoin/SKILL.md) — Bitcoin Core full-node operations, pruning
+  and assumeutxo, RPC and indexer backends, Lightning node operations for LND
+  and Core Lightning, mining setup, monitoring, security hardening, upgrades,
+  and backup and recovery.
 - [Celestia](celestia/SKILL.md) — Celestia mainnet consensus validator and
   full-node operations plus Data Availability bridge/full/light node checks,
   including `celestia-appd`, `celestia-node`, public endpoints, snapshots,
