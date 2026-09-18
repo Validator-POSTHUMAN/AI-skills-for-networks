@@ -83,6 +83,11 @@ valoper, or consensus-address input.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.
+- [XRPL EVM](xrplevm/SKILL.md) — XRPL EVM `exrpd` validator and full-node
+  operations for `xrplevm_1440000-1`, including Proof of Authority admission,
+  snapshot and state-sync bootstrap, app-hash agreement against independent
+  RPCs, consensus-breaking versus patch upgrades, anti-double-sign discipline,
+  the Cosmos and EVM API surfaces, monitoring, and hardening.
 
 ### Generic Operations
 
