@@ -45,6 +45,11 @@ valoper, or consensus-address input.
   scoring, cliquenet P2P triage, BLS/Schnorr/x25519 key custody, `staking-cli`
   registration and rotation on Ethereum, reward claims, storage pruning, and
   upgrades.
+- [Ethereum](ethereum/SKILL.md) — Ethereum execution and consensus client
+  operations for any client pair, checkpoint sync, validator creation,
+  withdrawal credentials, exits and consolidations (EIP-7002/7251), slashing
+  protection and key movement, MEV-Boost, monitoring, security hardening, and
+  fork upgrades.
 - [FastLane Sidecar](fastlane-sidecar/SKILL.md) — FastLane / shMonad MEV
   sidecar operations for Monad validators, including onboarding order,
   rootless Docker isolation, mempool IPC wiring, release verification,
