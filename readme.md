@@ -29,6 +29,11 @@ valoper, or consensus-address input.
   (`axelard`, `vald`, dedicated `tofnd`, broadcaster, and maintainers) plus the
   separate Amplifier verifier plane (`ampd`, dedicated `tofnd`, per-chain
   handlers/clients, onboarding review, and monitoring).
+- [Base](base/SKILL.md) — Base OP Stack L2 node operations with
+  `base-reth-node` and `base-consensus`: V2 snapshot restore, the permanent
+  node-type and pruning choice, L1 derivation health and the frozen-safe-head
+  failure, Flashblocks and historical proofs, RPC exposure hardening, and
+  fork-deadline upgrades.
 - [Bitcoin](bitcoin/SKILL.md) — Bitcoin Core full-node operations, pruning
   and assumeutxo, RPC and indexer backends, Lightning node operations for LND
   and Core Lightning, mining setup, monitoring, security hardening, upgrades,
