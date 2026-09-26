@@ -43,10 +43,10 @@ valoper, or consensus-address input.
   and assumeutxo, RPC and indexer backends, Lightning node operations for LND
   and Core Lightning, mining setup, monitoring, security hardening, upgrades,
   and backup and recovery.
-- [Celestia](celestia/SKILL.md) — Celestia mainnet consensus validator and
-  full-node operations plus Data Availability bridge/full/light node checks,
-  including `celestia-appd`, `celestia-node`, public endpoints, snapshots,
-  bridge-node sync, upgrades, and safe recovery.
+- [Celestia](celestia/SKILL.md) — Celestia consensus validator and full-node
+  operations plus Fibre registration and Data Availability bridge/full/light
+  node checks, including `celestia-appd`, `celestia-node`, public endpoints,
+  snapshots, bridge-node sync, upgrades, and safe recovery.
 - [Cosmos Hub](cosmoshub/SKILL.md) — Cosmos Hub Gaia validator and full-node
   operations for cosmoshub-4, including gaiad, CometBFT signing, provider
   security, IBC-facing checks, governance, upgrades, snapshots, and recovery.
