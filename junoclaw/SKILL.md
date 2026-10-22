@@ -1,38 +1,39 @@
 ---
 name: junoclaw-validator-ops
-description: "Operate JunoClaw G2 validators: threshold-share onboarding, coordinated starts and upgrades, certified state sync, finality/signing checks, and safe recovery."
+description: "Operate JunoClaw G2 validators: threshold reshares, single-signer cutovers, state sync, finality/signing checks, and recovery."
 ---
 
 # JunoClaw validator operations
 
-Use for a JunoClaw G2 seat running `slay3rd` on the Commonware-based chain. JunoClaw is **not** Cosmos Juno: do not use `junod`, CometBFT, Cosmovisor, staking, unjail, or Cosmos snapshot procedures here. G2 is an invited, equal-weight, unpaid testnet without consensus-layer staking or slashing. It still has a double-sign hazard: one seat must never run on two live hosts.
+Use for a JunoClaw G2 seat running `slay3rd` on the Commonware-based chain. JunoClaw is **not** Cosmos Juno: do not use `junod`, CometBFT, Cosmovisor, staking, unjail, or Cosmos snapshot procedures. G2 is an invited, equal-weight testnet without consensus-layer staking or slashing, but a second live signer for one seat is unsafe.
 
 ## Source and identity gate
 
-1. Read private inventory and the current coordinator-approved window/config, then compare with the official [validator guide](https://junoclaw.xyz/docs/onboarding/validators/), [run-a-node guide](https://junoclaw.xyz/docs/reference/run-a-node/), and [releases](https://github.com/Dragonmonk111/layer-sdk/releases). Check exact chain ID, release, genesis digest, peer IDs, validator index and anchor against the target host. G2 has used `junoclaw-g1`; do not infer a future chain ID from the devnet example `junoclaw-1`.
-2. Check dedicated host/network failure domain, NTP drift under 2 seconds, reachable P2P TCP 7001, sufficient CPU/RAM/disk (official minimum 2 cores, 4 GB, 20 GB SSD), and private gRPC 9090 unless publication was approved. Confirm one signer placement before starting or moving anything.
-3. Check the installed binary and release manifest by digest. `v0.6.0-rc11` was published 2026-10-17 with a donor-root quorum gate and diagnostics; publication does not prove the set has coordinated its upgrade or that a particular node runs it. Never mix versions within a set-change window.
+1. Read private inventory and the current coordinator-approved roster, window and config. Compare the [validator guide](https://junoclaw.xyz/docs/onboarding/validators/), [run-a-node guide](https://junoclaw.xyz/docs/reference/run-a-node/), and [releases](https://github.com/Dragonmonk111/layer-sdk/releases). Check exact chain ID, binary provenance/digest, genesis, peer IDs, index, quorum and anchor. G2 has used `junoclaw-g1`; the reference devnet's `junoclaw-1` is not interchangeable.
+2. Check dedicated host/network failure domain, NTP drift under two seconds, reachable P2P TCP 7001, adequate resources (official minimum two cores, 4 GB RAM, 20 GB SSD), and private gRPC TCP 9090 unless publication was approved. Prove one signer placement before start or key movement.
+3. Pin ceremony tool and node binary to an authenticated release or coordinator package and checksum. A digest supplied with an unauthenticated download proves byte agreement, **not publisher authenticity**. The 2026-10-22 fleet used a coordinator-distributed rc14v3 build, but its full build commit and independent publisher authenticity were not established locally. Do not install an unverified URL from forwarded text; coordinate version/config changes across the set.
 
-## Onboarding and key custody
+## Threshold reshare and key custody
 
-1. Obtain a coordinator-approved seat and ceremony bundle. Generate the Ed25519/MAYO2 identity on the final signer host with the version-pinned ceremony tool; send only `share-request.json` after checking its public fields and destination. Keep `keys.json`, encrypted dealings and finalized BLS share private on that host.
-2. Check DKG round, player set, dealer IDs, previous threshold public key, recipient identity and archive member types before acknowledgement. Verify the public acknowledgement count and coordinator acceptance. Finalize locally only against the reviewed bundle; confirm the threshold group public key is unchanged. Never paste or print private JSON.
-3. Obtain exact `node.toml` and genesis from the coordinator. Check validator index against the assigned share, peer Ed25519 keys, release, chain ID, genesis digest, restart anchor and paths. Back up signer material only through an explicitly approved custody path after proving no duplicate signer; never make a casual copy.
+The 2026-10-22 round-2 ceremony expanded G2 to eight seats, a 6-of-8 threshold and five dealers while preserving the prior full BLS group public key. These are historical facts, **not** defaults for future rounds. Reconfirm roster, quorum, dealers, tool and previous key each time.
 
-## Controlled start and verification
+1. Generate or retain the identity on the final signer. Share only the public identity request. Never print, paste or transmit `keys.json`, a decrypted share, `bls-share.json` or `dealer.seed`. Recipient-sealed `dealing-priv-*-for-*.json` files may be relayed only to the named recipients through the approved ceremony route; do not publish them as general downloads.
+2. Check exact round, player/dealer IDs, previous full group public key, recipient and safe archive member types before extraction. Dealers retain `dealer.seed` locally until their log is verified. Players acknowledge every expected dealer with the pinned tool; verify counts, zero complaints and coordinator acceptance.
+3. **Do not run dealer logging with a missing or disputed acknowledgement.** A missing ack can reveal that player's share in dealer logs. After all expected acks are accepted, generate and relay only the intended public log. Remove the used seed only after log verification and the approved retention decision.
+4. Independently observe complete logs: require exact equality with the previous full BLS group public key and approved new threshold. On the **same signer**, finalize against a protected copy of the live key, verify validator/share index and stage the new key without replacing the live key before the window. Check the issued `node.toml`, genesis, peer keys, chain ID, anchor and host paths. No ad-hoc off-host key copy.
 
-1. At a coordinated window, prove the prior placement is stopped/fenced, the target service is inactive, and existing consensus, WAL and MAYO signature journal are retained. Verify clock, disk, config/release digests and peer reachability, then start the single target service.
-2. Check active service, stable restart count, authenticated peers, advancing finalized height, and local digest/app hash at a common height against an independent peer. A running process or connected peers alone are not evidence of signing.
-3. Verify the seat's index in a fresh finalized certificate/signature bitmap through an independent peer or coordinator evidence. Record whether evidence is directly observed or relayed. Confirm monitoring alerts on finalized-height stalls and clock/peer loss.
+## Controlled cutover and verification
+
+1. At the coordinated window, check exact target, freeze, single-signer placement, clock, disk, digests and rollback capacity. Stop the old service and prove its signer process and listeners absent before swapping. Preserve old binary/config/key as protected artifacts, and retain consensus, WAL and application state unless a separately approved recovery plan requires otherwise.
+2. Switch only the reviewed binary, finalized same-host key and host-specific config; start one service. Check running image digest, loaded share index/quorum, accepted anchor, active service, stable restart count, authenticated peers and advancing **local** finality. Compare digest/app hash at a common height with an independent peer.
+3. A running process, peers or coordinator announcement do not prove this seat signed. Independently decode a fresh certificate/signature bitmap for its index, or label peer/coordinator evidence as relayed. Alert on finality stalls and clock/peer loss. Never blindly restore an old key or journal after the new share may have signed.
 
 ## Recovery boundaries
 
-- If a new seat starts at height 0 or reports unavailable historical payloads, check application state and the official certified state-sync path. An anchor does not supply application state.
-- Normal state sync requires a snapshot at H and a matching certified H+1 from enough independent donors. If H+1 is unavailable, stop and escalate. A halted-chain fallback changes the trust model; require a coordinator-approved anchor and explicit operator authorization. On rc10, `min_anchor_agree = 2` did **not** compare snapshot roots in that fallback. rc11 release notes claim a donor-root quorum gate; inspect the exact installed binary/source and donor responses before relying on it.
-- Preserve `data/consensus`, `data/wal`, and `data/mayo_sigs.log` across recovery. The MAYO log retains exact prior vote signatures; regenerating them can produce conflicting messages. Never wipe or roll back signer journals to repair a lagging node.
-- For a stalled active node, establish whether the network, one peer or only this seat is stalled. Check clock, disk, version, authenticated peers, finalized-height progression and common-height digest before any restart. Coordinate all-version changes; retain a rollback point that does not restore stale signer state.
-- No key move, data replacement, second active signer, firewall exposure or coordinated set change without the operator's specific authorization and anti-double-sign proof.
+- A restart anchor alone does not import application state. A joining seat may need certified state sync: a snapshot at H normally needs an agreed certified H+1 from independent donors. If the chain is halted and H+1 is unavailable, require an explicit coordinator-approved halted-chain anchor path and donor trust decision. A single-donor `min_anchor_agree = 1` path is weaker than multi-donor agreement. Check the exact installed binary before relying on flags or release-note quorum claims.
+- Preserve `data/consensus`, `data/wal` and `data/mayo_sigs.log`. Never wipe or roll back signer journals to repair lag. Divergent application state requires a target-specific backup and approved sync plan; do not apply another seat's wipe instruction.
+- For a stalled active node, determine whether the network, a peer or this seat is stalled. Check clock, disk, version, peers, finalized-height progression and common-height digest before intervention. No key move, state replacement, second active signer, firewall exposure or set change without specific authorization and anti-double-sign proof.
 
 ## Report
 
-State exact chain ID and binary release, target and reference finalized heights/digest, peer count, seat participation evidence, clock status, restart count, action taken and unresolved risks. Never include private share contents, private host inventory or credentials in a public report.
+State chain ID, binary identity/provenance, target/reference heights and digest, peer count, seat participation evidence, clock, restart count, action and residual risk. Never include private share contents, private inventory or credentials in a public report.
