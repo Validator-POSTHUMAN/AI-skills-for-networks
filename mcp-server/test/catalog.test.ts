@@ -10,6 +10,20 @@ test("catalog contains public network and operations skills", async () => {
   assert.ok(catalog.skills.some((entry) => entry.category === "operations"));
 });
 
+test("Solana package is discoverable and includes its references", async () => {
+  const catalog = await loadCatalog();
+  const entry = catalog.skills.find((item) => item.id === "solana");
+  assert.ok(entry);
+  assert.equal(entry.category, "network");
+  assert.match(await readSkillFile(repositoryRoot(), entry), /Solana Validator Operations/);
+  const files = await listSkillFiles(repositoryRoot(), entry);
+  assert.ok(files.includes("SKILL.md"));
+  assert.ok(files.includes("references/operations.md"));
+  assert.ok(files.includes("references/monitoring-security.md"));
+  assert.ok(files.includes("references/troubleshooting.md"));
+  assert.ok(files.includes("examples/evaluation-cases.md"));
+});
+
 test("catalog only serves bounded package files", async () => {
   const catalog = await loadCatalog();
   const entry = catalog.skills.find((item) => item.id === "validator-upgrade");

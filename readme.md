@@ -86,6 +86,9 @@ valoper, or consensus-address input.
   application-module transaction guardrails, and recovery.
 - [Shentu](shentu/SKILL.md) — Shentu Chain validator operations for
   `shentu-2.2`.
+- [Solana](solana/SKILL.md) — Agave validator and RPC-node operations,
+  including signing health, safe identity cutover, snapshots, upgrades,
+  monitoring, SFDP checks, and incident triage.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.

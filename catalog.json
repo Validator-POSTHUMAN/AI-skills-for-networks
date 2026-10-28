@@ -21,6 +21,7 @@
     {"id":"osmosis","title":"Osmosis","category":"network","path":"osmosis","description":"Osmosis validator, full-node, public API, snapshot, IBC, and recovery operations."},
     {"id":"provenance","title":"Provenance","category":"network","path":"provenance","description":"Provenance validator and full-node operations."},
     {"id":"shentu","title":"Shentu","category":"network","path":"shentu","description":"Shentu Chain validator operations."},
+    {"id":"solana","title":"Solana","category":"network","path":"solana","description":"Solana Agave validator and RPC-node operations: signing health, identity cutover, snapshots, upgrades, monitoring, SFDP checks, and incident triage."},
     {"id":"starknet","title":"Starknet","category":"network","path":"starknet","description":"Starknet development, full-node, validator, and attestation workflows."},
     {"id":"the-graph","title":"The Graph","category":"network","path":"the-graph","description":"Graph Protocol indexer operations under Graph Horizon: health, allocations, GraphTally/TAP, POI staleness, rewards eligibility, delegation review."},
     {"id":"xrplevm","title":"XRPL EVM","category":"network","path":"xrplevm","description":"XRPL EVM exrpd validator and full-node operations: Proof of Authority admission, snapshot and state-sync bootstrap, app-hash agreement against independent RPCs, consensus-breaking versus patch upgrades, anti-double-sign discipline, Cosmos and EVM API surfaces, monitoring, and hardening."},
