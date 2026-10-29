@@ -97,10 +97,11 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
   key changes, signer changes, unjail, governance voting, staking edits,
   transaction broadcast, bridge/full/light unsafe reset, public endpoint
   exposure, or firewall changes.
-- Back up `priv_validator_key.json`, `node_key.json`, keyring references,
-  `priv_validator_state.json`, `app.toml`, `config.toml`, `client.toml`,
-  genesis, Cosmovisor metadata, DA node store metadata, bridge/full/light
-  keys, and recent logs before destructive recovery.
+- Preserve key custody and existing protected backups without opening or copying
+  validator keys or signer state. Before destructive recovery, back up the
+  relevant non-secret configuration, genesis, runtime metadata, and recent logs;
+  handle any key/state backup only through the operator's explicitly authorized
+  custody procedure after proving no duplicate signer exists.
 - Preserve `priv_validator_state.json` and understand double-sign risk before
   moving validator data between hosts.
 - Do not restart-loop during network-wide halts, upgrade boundaries, or public
@@ -351,6 +352,8 @@ restore `~/.celestia-app/data`; bridge/full/light snapshots restore their own
 `~/.celestia-*` stores.
 
 ## Fibre Server Workflow
+
+For a release-matched, step-by-step same-host installation on mainnet or Mocha-5, read [Fibre installation](references/fibre-install.md) before changing a validator.
 
 Use this workflow only with the exact Celestia app release and network that
 upstream documents as Fibre-compatible. Fibre is a validator-operated data
