@@ -131,13 +131,10 @@ A mature network skill may include:
 
 ## License
 
-This repository is licensed under the Creative Commons Attribution 4.0
-International Public License (CC BY 4.0).
+This repository is licensed under MIT No Attribution (MIT-0). You may use,
+copy, modify, redistribute, and adapt these skills, including for commercial
+and internal validator operations, without attribution. Skills published on
+ClawHub are distributed under the same MIT-0 terms.
 
-You may use, copy, modify, redistribute, and adapt these skills, including for
-commercial and internal validator operations, provided that attribution is given
-to the creator:
-
-POSTHUMAN validator - https://github.com/Validator-POSTHUMAN
-
-See [LICENSE](LICENSE) and [ATTRIBUTION.md](ATTRIBUTION.md).
+See [LICENSE](LICENSE). Credits and the relicensing note (CC BY 4.0 to MIT-0 on
+2026-11-12, with contributor agreement) are in [ATTRIBUTION.md](ATTRIBUTION.md).
