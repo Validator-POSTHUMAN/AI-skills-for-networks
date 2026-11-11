@@ -1,6 +1,15 @@
 ---
 name: provenance-validator-ops
 description: "Operate Provenance Blockchain validators and full nodes on pio-mainnet-1: monitor provenanced/CometBFT health, signing, upgrades, governance, snapshots, public RPC/API/gRPC, and safe recovery."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/provenance
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Provenance Validator Ops
@@ -117,6 +126,8 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
   examples, logs, and skill files.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl` and `provenanced`. With `--local` the node itself needs both sets.
 
 Use the bundled helper when possible:
 

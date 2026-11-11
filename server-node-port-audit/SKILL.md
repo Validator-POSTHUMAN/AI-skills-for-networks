@@ -1,6 +1,9 @@
 ---
 name: "server-node-port-audit"
 description: "Audit servers to identify blockchain nodes, listening ports, and effective network exposure."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/server-node-port-audit
 ---
 
 # Server node and port audit

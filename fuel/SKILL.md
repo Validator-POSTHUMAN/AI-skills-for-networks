@@ -1,6 +1,15 @@
 ---
 name: fuel-network-ops
 description: "Operate and build on Fuel Network: Fuel Ignition fuel-core full nodes, GraphQL API, Fuel Sequencer Cosmos nodes and validators, sidecar/Ethereum dependencies, upgrades, snapshots, bridge workflows, Sway/forc tooling, monitoring, and safe incident triage."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/fuel
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Fuel Network Ops
@@ -132,6 +141,8 @@ keys.
   target host before restarting or changing signer state.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `python3`, `systemctl`, `journalctl`, `docker` when the node is a container, and `fuelsequencerd` in sequencer mode. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible.
 

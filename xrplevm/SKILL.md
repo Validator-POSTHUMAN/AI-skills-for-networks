@@ -1,6 +1,17 @@
 ---
 name: xrplevm-node-ops
 description: "Operate XRPL EVM nodes and validators: exrpd installation, snapshot and state-sync bootstrap, Proof of Authority admission, consensus-breaking versus patch upgrades, app-hash agreement checks, anti-double-sign discipline, EVM JSON-RPC and indexing, monitoring, hardening, incident triage, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/xrplevm
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
+        - jq
 ---
 
 # XRPL EVM Node Ops
@@ -257,6 +268,8 @@ node the report is incomplete without:
   binary is staged for it.
 
 ## `scripts/xrplevm-healthcheck.sh`
+
+Script requirements: the machine that runs the script needs `bash`, `curl`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl` and `ss`. With `--local` the node itself needs both sets.
 
 Read-only. Runs no mutating command, changes nothing, prints no credential.
 

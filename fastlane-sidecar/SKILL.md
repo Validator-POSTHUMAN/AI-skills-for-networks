@@ -1,6 +1,15 @@
 ---
 name: fastlane-sidecar-ops
 description: "Install, verify, monitor, upgrade, and troubleshoot the FastLane MEV sidecar for Monad validators, including shMonad onboarding order, beneficiary/coinbase prerequisites, rootless Docker isolation, mempool IPC wiring, release signature/provenance verification, health checks, rollback, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/fastlane-sidecar
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # FastLane Sidecar Ops
@@ -117,6 +126,8 @@ curl -fsS http://127.0.0.1:8080/ -H 'Content-Type: application/json' \
 14. Verify health, logs, and metrics.
 
 ## Health Check
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl`, `getfacl`, rootless `docker` and non-interactive `sudo` to the fastlane user (see below). With `--local` the node itself needs both sets.
 
 Use the bundled helper when possible:
 

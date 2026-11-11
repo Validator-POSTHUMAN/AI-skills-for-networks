@@ -1,6 +1,16 @@
 ---
 name: ethereum-node-and-validator-ops
 description: "Operate Ethereum infrastructure: execution and consensus client pairs, checkpoint sync, validator creation and lifecycle, withdrawal credentials, exits and consolidations, MEV-Boost, monitoring, security hardening, client and fork upgrades, incident triage, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/ethereum
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - jq
 ---
 
 # Ethereum Node and Validator Ops
@@ -212,6 +222,8 @@ Before any action that could affect signing, require:
 - a stated verification criterion that includes external inclusion evidence.
 
 Refuse to proceed, and say why, when key uniqueness cannot be proven.
+
+Script requirements: the machine that runs the script needs `bash`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl` and `ss`. With `--local` the node itself needs both sets.
 
 `ethereum-healthcheck.sh` is read-only and prints no credential. A passing check
 is evidence, not proof: confirm sync, non-optimistic status, reachability and

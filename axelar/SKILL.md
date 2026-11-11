@@ -1,6 +1,15 @@
 ---
 name: axelar-validator-ops
 description: "Set up, monitor, upgrade, and safely recover Axelar classic validators and Amplifier verifiers."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/axelar
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Axelar Validator Operations
@@ -92,6 +101,8 @@ is ambiguous.
 - Upgrade: follow the workflow below and current official release instructions.
 
 ## Read-only baseline
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `timeout`, `systemctl`, `journalctl` and `axelard`. Optional: `scripts/axelar-snapshot-verify.sh` runs where the archive is and needs `python3`, `lz4` and `sha256sum`. With `--local` the node itself needs both sets.
 
 Use `scripts/axelar-healthcheck.sh` for a classic validator when its required
 inventory is complete. It checks service state, block freshness, sync, peers,

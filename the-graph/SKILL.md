@@ -1,6 +1,17 @@
 ---
 name: the-graph-indexer-ops
 description: "Operate a Graph Protocol indexer under Graph Horizon: stack and deployment health, allocations and rules, GraphTally/TAP payments, POI staleness, rewards eligibility, delegation review, upgrades, security gates, and incident triage."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/the-graph
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
+        - python3
 ---
 
 # The Graph Indexer Operations
@@ -217,6 +228,8 @@ and name the source for each — live CLI, metrics, network subgraph, or docs.
 Do not claim a fix succeeded without post-change output that shows it.
 
 ## Helper
+
+Script requirements: the machine that runs the script needs `bash`, `curl`, `python3` and `ssh` for `--host`; on the target node it calls `curl`, `timeout` and `docker`. With `--local` the node itself needs both sets.
 
 `scripts/the-graph-healthcheck.sh` runs the read-only parts of Steps 2 and 3
 against a local or remote host. It never writes, never submits a transaction,

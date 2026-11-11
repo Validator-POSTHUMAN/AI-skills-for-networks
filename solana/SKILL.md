@@ -1,6 +1,9 @@
 ---
 name: solana-validator-ops
 description: "Use for Solana validator and RPC-node install, restart, upgrade, identity cutover, monitoring, SFDP, and incident work."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/solana
 ---
 
 # Solana Validator Operations

@@ -1,6 +1,15 @@
 ---
 name: starknet-ops-and-apps
 description: "Operate and build on Starknet: full nodes, JSON-RPC, Pathfinder/Juno, validator staking and attestation, Starkzap/app integrations, Cairo tooling, upgrades, troubleshooting, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/starknet
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Starknet Ops and Apps
@@ -105,6 +114,8 @@ touching keys.
   official release notes, and compatibility checks over restart loops.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `python3`, `timeout`, `systemctl` and, for container installs, `docker`. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 

@@ -1,6 +1,15 @@
 ---
 name: shentu-validator-ops
 description: "Operate Shentu Chain validators on shentu-2.2: monitor node health, verify signing, prepare and execute upgrades, triage Tenderduty alerts, recover safely, and write concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/shentu
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Shentu Validator Ops
@@ -86,6 +95,8 @@ examples from this skill as real inventory.
   after the upgrade height.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl` and `shentud`. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 

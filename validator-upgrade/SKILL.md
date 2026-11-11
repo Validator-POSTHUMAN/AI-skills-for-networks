@@ -1,6 +1,9 @@
 ---
 name: "validator-upgrade"
 description: "Use when planning or executing validator upgrades with source, migration, restart, and signing verification gates."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-upgrade
 ---
 
 # Validator upgrade

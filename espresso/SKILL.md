@@ -1,6 +1,16 @@
 ---
 name: espresso-validator-ops
 description: "Operate Espresso validators and query nodes on Mainnet/Decaf: consensus view liveness, time-since-last-decide, participation scoring, cliquenet P2P triage, three-key custody (BLS/Schnorr/x25519), staking-cli registration and rotation on Ethereum, delegation and reward claims, storage pruning, upgrades, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/espresso
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
 ---
 
 # Espresso Validator Ops
@@ -181,6 +191,8 @@ replacing storage, or touching keys.
   server-first protocol and buffering the opening bytes deadlocks connections.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash`, `curl` and `ssh` for `--host`; on the target node it calls `curl`. Optional: `--bls-key` scoring needs local `python3`; the optional staking-cli and P2P probes need local `docker` and `nc` and are skipped when absent. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 

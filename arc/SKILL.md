@@ -1,6 +1,17 @@
 ---
 name: arc-node-ops
 description: "Operate Arc Network nodes: arc-node-execution and arc-node-consensus deployment, arcup and Docker installs, snapshot bootstrap and el-profile choices, relay-endpoint follow health, the arc RPC namespace, wall-clock hardfork deadlines, RPC exposure hardening, incident triage, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/arc
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
+        - jq
 ---
 
 # Arc Node Ops
@@ -229,6 +240,8 @@ the report is incomplete without:
 - the next known fork timestamp and whether the running version satisfies it.
 
 ## `scripts/arc-healthcheck.sh`
+
+Script requirements: the machine that runs the script needs `bash`, `curl`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl` and `ss`. With `--local` the node itself needs both sets.
 
 Read-only. Runs no mutating RPC, changes nothing, prints no credential.
 

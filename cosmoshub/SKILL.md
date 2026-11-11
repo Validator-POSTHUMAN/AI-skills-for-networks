@@ -1,6 +1,15 @@
 ---
 name: cosmos-hub-validator-ops
 description: "Operate Cosmos Hub Gaia validators and full nodes on cosmoshub-4: monitor gaiad/CometBFT health, signing, provider-security state, IBC/RPC/API/gRPC, upgrades, governance, snapshots, recovery, and safe operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/cosmoshub
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Cosmos Hub Validator Ops
@@ -108,6 +117,8 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
   examples, logs, and skill files.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl`, `journalctl` and `gaiad`. With `--local` the node itself needs both sets.
 
 Use the bundled helper when possible:
 

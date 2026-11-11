@@ -1,6 +1,9 @@
 ---
 name: junoclaw-validator-ops
 description: "Operate JunoClaw G2 validators: threshold reshares, single-signer cutovers, state sync, finality/signing checks, and recovery."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/junoclaw
 ---
 
 # JunoClaw validator operations

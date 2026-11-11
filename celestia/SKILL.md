@@ -1,6 +1,16 @@
 ---
 name: celestia-validator-and-bridge-ops
 description: "Deploy, register, or verify Celestia Fibre servers; operate Celestia consensus validators/full nodes and Data Availability bridge/light/full nodes safely."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/celestia
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+    primaryEnv: BRIDGE_AUTH_TOKEN
 ---
 
 # Celestia Validator and Bridge Ops
@@ -116,6 +126,8 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
   infrastructure details in reports, examples, logs, or skill files.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl`, `journalctl`, `celestia-appd` and, for DA checks, `celestia`. With `--local` the node itself needs both sets.
 
 Use the bundled helper when possible:
 

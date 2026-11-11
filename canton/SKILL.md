@@ -1,6 +1,16 @@
 ---
 name: canton-validator-ops
 description: "Operate a Canton Network validator on MainNet, TestNet or DevNet: Splice stack health, sync lag and reward triggers, scan API access, identities and database backups, disaster recovery and re-onboarding, upgrades and migration IDs, security hardening, and incident triage."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/canton
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
 ---
 
 # Canton Validator Operations
@@ -344,6 +354,8 @@ Do not call an upgrade complete without post-upgrade health, sync and reward
 verification.
 
 ## Helper
+
+Script requirements: the machine that runs the script needs `bash`, `curl` and `ssh` for `--host`; on the target node it calls `docker`. With `--local` the node itself needs both sets.
 
 `scripts/canton-healthcheck.sh` runs the read-only parts of Steps 2 and 4
 against a local or remote host. It never writes, never submits a transaction,

@@ -1,6 +1,16 @@
 ---
 name: bitcoin-node-and-lightning-ops
 description: "Operate Bitcoin infrastructure: Bitcoin Core full nodes, pruning and assumeutxo, RPC and indexer backends, Lightning (LND and Core Lightning), mining setup, monitoring, security hardening, upgrades, backup and recovery, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/bitcoin
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - jq
 ---
 
 # Bitcoin Node and Lightning Ops
@@ -135,6 +145,8 @@ Lightning state.
   compromised.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash`, `jq` and `ssh` for `--host`; on the target node it calls `bitcoin-cli` (or `docker` when the node runs in a container) and `systemctl`. With `--local` the node itself needs both sets.
 
 ```bash
 bitcoin-cli getblockchaininfo | jq '{chain, blocks, headers, verificationprogress, initialblockdownload, size_on_disk, pruned}'
