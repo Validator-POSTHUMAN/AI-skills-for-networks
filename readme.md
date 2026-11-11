@@ -68,8 +68,6 @@ valoper, or consensus-address input.
   operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
   snapshot, and Sway/forc workflows.
 - [JunoClaw G2 Testnet](junoclaw/SKILL.md) — Threshold-share validator onboarding, coordinated starts and upgrades, certified state sync, finality and signing checks, and safe recovery.
-- [Limonata](limonata/SKILL.md) — Limonata testnet validator and full-node
-  operations, including encrypted-mempool, DKG, recovery, and restart safety.
 - [Monad](monad/SKILL.md) — Monad validator and full-node operations for
   mainnet and testnet, including `monad-bft`, `monad-execution`,
   `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
