@@ -1,5 +1,5 @@
 ---
-name: "solana"
+name: solana-validator-ops
 description: "Use for Solana validator and RPC-node install, restart, upgrade, identity cutover, monitoring, SFDP, and incident work."
 ---
 

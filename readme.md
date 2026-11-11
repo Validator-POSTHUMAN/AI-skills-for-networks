@@ -43,6 +43,10 @@ valoper, or consensus-address input.
   and assumeutxo, RPC and indexer backends, Lightning node operations for LND
   and Core Lightning, mining setup, monitoring, security hardening, upgrades,
   and backup and recovery.
+- [Canton Network](canton/SKILL.md) — Canton Network validator operations on
+  MainNet, TestNet and DevNet: Splice stack health, sync lag and automation
+  triggers, scan API access, identities and database backups, disaster
+  recovery, upgrades and migration IDs, and security hardening.
 - [Celestia](celestia/SKILL.md) — Celestia consensus validator and full-node
   operations plus Fibre registration and Data Availability bridge/full/light
   node checks, including `celestia-appd`, `celestia-node`, public endpoints,
@@ -90,6 +94,10 @@ valoper, or consensus-address input.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.
+- [The Graph](the-graph/SKILL.md) — Graph Protocol indexer operations under
+  Graph Horizon: stack and deployment health, allocations and rules,
+  GraphTally/TAP payments, POI staleness, rewards eligibility, delegation
+  review, upgrades, and security gates.
 - [XRPL EVM](xrplevm/SKILL.md) — XRPL EVM `exrpd` validator and full-node
   operations for `xrplevm_1440000-1`, including Proof of Authority admission,
   snapshot and state-sync bootstrap, app-hash agreement against independent
