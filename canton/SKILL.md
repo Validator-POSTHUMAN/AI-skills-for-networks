@@ -122,8 +122,8 @@ increase(splice_trigger_iterations_total{trigger_name="ReceiveFaucetCouponTrigge
 ```
 
 `splice_trigger_completed_total` for that trigger **does not exist until the
-first completion** — it is absent on healthy POSTHUMAN MainNet and TestNet
-validators while iterations climb normally. An alert written as
+first completion** — it can be absent on a healthy validator while
+iterations climb normally. An alert written as
 `rate(splice_trigger_completed_total{...}[1h]) == 0` never fires, because
 PromQL returns no data for a missing series rather than zero. Alert on
 iterations and automation health, and use `absent()` if you need to assert the
