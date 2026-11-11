@@ -412,8 +412,19 @@ esac
 REMOTE
 )"
 
+# Pass the arguments inside the script text on stdin. ssh joins remote
+# arguments into one string that the remote shell re-splits, which drops empty
+# optional arguments and shifts the rest; a `set --` line with %q-quoted values
+# survives intact in both modes.
+ARGS_PREAMBLE="set -- $(printf '%q ' \
+  "$MODE" "$SERVICE" "$CONTAINER" "$GRAPHQL" "$PUBLIC_GRAPHQL" \
+  "$RPC" "$PUBLIC_RPC" "$DAEMON" "$VALCONS" "$VALOPER" \
+  "$EXPECTED_CHAIN_ID" "$EXPECTED_CHAIN_NAME" "$DATA_DIR" "$BLOCKS" "$MAX_BLOCK_LAG" \
+  "$CURL_TIMEOUT")"$'\n'
+
 if [[ "$LOCAL_MODE" == "1" ]]; then
-  bash -s -- "$MODE" "$SERVICE" "$CONTAINER" "$GRAPHQL" "$PUBLIC_GRAPHQL" "$RPC" "$PUBLIC_RPC" "$DAEMON" "$VALCONS" "$VALOPER" "$EXPECTED_CHAIN_ID" "$EXPECTED_CHAIN_NAME" "$DATA_DIR" "$BLOCKS" "$MAX_BLOCK_LAG" "$CURL_TIMEOUT" <<<"$REMOTE_SCRIPT"
+  bash -s <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 else
-  ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" bash -s -- "$MODE" "$SERVICE" "$CONTAINER" "$GRAPHQL" "$PUBLIC_GRAPHQL" "$RPC" "$PUBLIC_RPC" "$DAEMON" "$VALCONS" "$VALOPER" "$EXPECTED_CHAIN_ID" "$EXPECTED_CHAIN_NAME" "$DATA_DIR" "$BLOCKS" "$MAX_BLOCK_LAG" "$CURL_TIMEOUT" <<<"$REMOTE_SCRIPT"
+  ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" bash -s \
+    <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 fi

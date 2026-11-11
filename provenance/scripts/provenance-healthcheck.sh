@@ -216,8 +216,17 @@ echo "inode_root=$(df -ih / | awk 'NR==2 {print $5}')"
 REMOTE
 )"
 
+# Pass the arguments inside the script text on stdin. ssh joins remote
+# arguments into one string that the remote shell re-splits, which drops empty
+# optional arguments and shifts the rest; a `set --` line with %q-quoted values
+# survives intact in both modes.
+ARGS_PREAMBLE="set -- $(printf '%q ' \
+  "$SERVICE" "$RPC" "$VALCONS" "$VALOPER" "$PUBLIC_RPC" \
+  "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" "$EXPECTED_CHAIN_ID")"$'\n'
+
 if [[ "$LOCAL_MODE" == "1" ]]; then
-  bash -s -- "$SERVICE" "$RPC" "$VALCONS" "$VALOPER" "$PUBLIC_RPC" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" "$EXPECTED_CHAIN_ID" <<<"$REMOTE_SCRIPT"
+  bash -s <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 else
-  ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" bash -s -- "$SERVICE" "$RPC" "$VALCONS" "$VALOPER" "$PUBLIC_RPC" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" "$EXPECTED_CHAIN_ID" <<<"$REMOTE_SCRIPT"
+  ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" bash -s \
+    <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 fi
