@@ -1,6 +1,16 @@
 ---
 name: canton-validator-ops
 description: "Operate a Canton Network validator on MainNet, TestNet or DevNet: Splice stack health, sync lag and reward triggers, scan API access, identities and database backups, disaster recovery and re-onboarding, upgrades and migration IDs, security hardening, and incident triage."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/canton
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
 ---
 
 # Canton Validator Operations
@@ -122,8 +132,8 @@ increase(splice_trigger_iterations_total{trigger_name="ReceiveFaucetCouponTrigge
 ```
 
 `splice_trigger_completed_total` for that trigger **does not exist until the
-first completion** — it is absent on healthy POSTHUMAN MainNet and TestNet
-validators while iterations climb normally. An alert written as
+first completion** — it can be absent on a healthy validator while
+iterations climb normally. An alert written as
 `rate(splice_trigger_completed_total{...}[1h]) == 0` never fires, because
 PromQL returns no data for a missing series rather than zero. Alert on
 iterations and automation health, and use `absent()` if you need to assert the
@@ -344,6 +354,8 @@ Do not call an upgrade complete without post-upgrade health, sync and reward
 verification.
 
 ## Helper
+
+Script requirements: the machine that runs the script needs `bash`, `curl` and `ssh` for `--host`; on the target node it calls `docker`. With `--local` the node itself needs both sets.
 
 `scripts/canton-healthcheck.sh` runs the read-only parts of Steps 2 and 4
 against a local or remote host. It never writes, never submits a transaction,

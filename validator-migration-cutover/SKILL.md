@@ -1,6 +1,9 @@
 ---
 name: "validator-migration-cutover"
 description: "Use when migrating validator workloads with freeze, key uniqueness, cutover, rollback, and downstream verification."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-migration-cutover
 ---
 
 # Validator migration and cutover

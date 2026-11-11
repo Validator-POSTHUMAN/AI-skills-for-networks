@@ -1,6 +1,15 @@
 ---
 name: provenance-validator-ops
 description: "Operate Provenance Blockchain validators and full nodes on pio-mainnet-1: monitor provenanced/CometBFT health, signing, upgrades, governance, snapshots, public RPC/API/gRPC, and safe recovery."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/provenance
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Provenance Validator Ops
@@ -48,7 +57,11 @@ changing production configuration.
   includes standard Cosmos modules plus Provenance modules such as marker,
   metadata, name, attribute, exchange, smart contract, and related application
   functionality.
-- Latest official Provenance release observed at publication time: `v1.29.0`.
+- Latest official Provenance release, checked 2026-11-12: `v1.31.0` (tag commit
+  `d9c53c8e0c88784142e8b91c5ba0829a6af498c0`, released 2026-10-02; source:
+  https://github.com/provenance-io/provenance/releases). Its bundled
+  `libwasmvm` needs glibc 2.30 or newer; EL8 hosts need the alternate library
+  attached to the release (see the `v1.31.0` release notes).
 
 These are orientation facts, not authorization to act. Verify live state and
 current upstream documentation before changing a production node.
@@ -113,6 +126,8 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
   examples, logs, and skill files.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl` and `provenanced`. With `--local` the node itself needs both sets.
 
 Use the bundled helper when possible:
 

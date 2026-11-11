@@ -1,6 +1,9 @@
 ---
 name: "nodes-service-maintenance"
 description: "Use when changing or deploying a public blockchain node-guides service, its source data, UI, contribution content, or cache."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/nodes-service-maintenance
 ---
 
 # Public node-guides service maintenance

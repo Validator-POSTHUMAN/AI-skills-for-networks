@@ -1,6 +1,16 @@
 ---
 name: base-node-ops
 description: "Operate Base (OP Stack L2) nodes: base-reth-node and base-consensus deployment, V2 snapshot restore, node-type and pruning choices, L1 derivation health, Flashblocks, RPC exposure and hardening, fork-deadline upgrades, incident triage, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/base
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - jq
 ---
 
 # Base Node Ops
@@ -197,6 +207,8 @@ Base node the report is incomplete without:
 - the next known fork deadline and whether the running tag satisfies it
 
 ## `scripts/base-healthcheck.sh`
+
+Script requirements: the machine that runs the script needs `bash`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl`, `ss` and, with `--compose-dir`, `docker compose`. With `--local` the node itself needs both sets.
 
 Read-only. Runs no mutating RPC, changes nothing, prints no credential.
 

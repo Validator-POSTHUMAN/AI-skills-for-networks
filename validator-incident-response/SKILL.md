@@ -1,6 +1,9 @@
 ---
 name: "validator-incident-response"
 description: "Use during validator incidents for slashing-risk assessment, forensics, recovery, and external verification."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-incident-response
 ---
 
 # Validator incident response

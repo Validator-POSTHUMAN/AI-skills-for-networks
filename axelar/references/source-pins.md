@@ -1,6 +1,12 @@
 # Axelar Source Pins and Limitations
 
-Reviewed on 2026-09-04. These immutable commits back the procedures in this
+Reviewed on 2026-09-04; `axelar-core` re-pinned on 2026-11-12 to tag
+`v1.5.5` (`034c47b`), the newest `v1.5.x` tag (public mainnet APIs reported
+`1.5.3` and `1.5.5` on 2026-11-12). The previous pin `60e54ec` had diverged from the release line. The four `axelar-core` files
+linked below exist at the same paths at `v1.5.5`. A `v1.6.0` tag
+(`fb3488d`, 2026-10-02) also exists, but on 2026-11-12 it had no GitHub release
+and mainnet had no `current_plan`; do not treat it as the mainnet release
+until a plan names it. These immutable commits back the procedures in this
 skill. Re-resolve current release tags, network artifacts, deployment contracts,
 parameters, and advisories before a production change.
 
@@ -8,7 +14,7 @@ parameters, and advisories before a production change.
 
 | Source | Commit | Used for |
 |---|---|---|
-| [`axelarnetwork/axelar-core`](https://github.com/axelarnetwork/axelar-core/tree/60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98) | `60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98` | `vald-start` and `health-check` flags, classic `vald` config shape, release-build/signature guidance, maintainer CLI semantics |
+| [`axelarnetwork/axelar-core`](https://github.com/axelarnetwork/axelar-core/tree/034c47b294155aca8ad85fb75e82aa0bf0f8fead) | `034c47b294155aca8ad85fb75e82aa0bf0f8fead` (tag `v1.5.5`) | `vald-start` and `health-check` flags, classic `vald` config shape, release-build/signature guidance, maintainer CLI semantics |
 | [`axelarnetwork/axelar-configs`](https://github.com/axelarnetwork/axelar-configs/tree/f28083f0971b8e907141636f21a778d89683637d) | `f28083f0971b8e907141636f21a778d89683637d` | public application chain identity/denom cross-check only |
 | [`axelarnetwork/axelar-docs`](https://github.com/axelarnetwork/axelar-docs/tree/1e9fedd2c70043c612f3febdad94e3da3acb5335) | `1e9fedd2c70043c612f3febdad94e3da3acb5335` | classic validator architecture/order, immutable broadcaster warning, external-chain coupling, health/monitoring, Amplifier onboarding/topology/security expectations |
 | [`axelarnetwork/axelar-amplifier`](https://github.com/axelarnetwork/axelar-amplifier/tree/46391a054eae12b4301c375be72a34a7e03159c6) | `46391a054eae12b4301c375be72a34a7e03159c6` | `ampd`/handler architecture, config schema, monitoring endpoints/metrics, state path, broadcast-capable onboarding behavior |
@@ -24,10 +30,10 @@ Classic plane:
 - [Immutable broadcaster proxy warning](https://github.com/axelarnetwork/axelar-docs/blob/1e9fedd2c70043c612f3febdad94e3da3acb5335/src/content/docs/validator/setup/register-broadcaster.mdx)
 - [External-chain maintainer/config coupling](https://github.com/axelarnetwork/axelar-docs/blob/1e9fedd2c70043c612f3febdad94e3da3acb5335/src/content/docs/validator/external-chains/overview.mdx)
 - [Validator monitoring](https://github.com/axelarnetwork/axelar-docs/blob/1e9fedd2c70043c612f3febdad94e3da3acb5335/src/content/docs/validator/operations/monitoring.mdx)
-- [`vald-start` CLI](https://github.com/axelarnetwork/axelar-core/blob/60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98/docs/cli/axelard_vald-start.md)
-- [`health-check` CLI](https://github.com/axelarnetwork/axelar-core/blob/60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98/docs/cli/axelard_health-check.md)
-- [Classic `vald` config fixture](https://github.com/axelarnetwork/axelar-core/blob/60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98/vald/config/testdata/golden_config.toml)
-- [Core build and release verification](https://github.com/axelarnetwork/axelar-core/blob/60e54ec1d39d55ee2ce2a5ed0ab4192ca3704d98/README.md)
+- [`vald-start` CLI](https://github.com/axelarnetwork/axelar-core/blob/034c47b294155aca8ad85fb75e82aa0bf0f8fead/docs/cli/axelard_vald-start.md)
+- [`health-check` CLI](https://github.com/axelarnetwork/axelar-core/blob/034c47b294155aca8ad85fb75e82aa0bf0f8fead/docs/cli/axelard_health-check.md)
+- [Classic `vald` config fixture](https://github.com/axelarnetwork/axelar-core/blob/034c47b294155aca8ad85fb75e82aa0bf0f8fead/vald/config/testdata/golden_config.toml)
+- [Core build and release verification](https://github.com/axelarnetwork/axelar-core/blob/034c47b294155aca8ad85fb75e82aa0bf0f8fead/README.md)
 
 Amplifier plane:
 

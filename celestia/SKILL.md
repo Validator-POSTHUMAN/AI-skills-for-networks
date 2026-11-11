@@ -1,6 +1,16 @@
 ---
 name: celestia-validator-and-bridge-ops
 description: "Deploy, register, or verify Celestia Fibre servers; operate Celestia consensus validators/full nodes and Data Availability bridge/light/full nodes safely."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/celestia
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+    primaryEnv: BRIDGE_AUTH_TOKEN
 ---
 
 # Celestia Validator and Bridge Ops
@@ -25,8 +35,8 @@ provider, wallet, explorer, snapshot provider, or custody model.
    - https://github.com/celestiaorg/celestia-node
    - https://github.com/celestiaorg/networks
    - https://github.com/cosmos/chain-registry/tree/master/celestia
-4. Operator-selected service guides such as POSTHUMAN or ITRocket only after
-   official and local facts are understood.
+4. Operator-selected third-party service guides and snapshot providers only
+   after official and local facts are understood.
 5. Explorers and third-party RPCs only as secondary confirmation.
 
 Always refresh official docs, release tags, checksums, genesis, network config,
@@ -117,6 +127,8 @@ restoring snapshots, deleting data, exposing RPC, or touching keys.
 
 ## Health Check Workflow
 
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl`, `journalctl`, `celestia-appd` and, for DA checks, `celestia`. With `--local` the node itself needs both sets.
+
 Use the bundled helper when possible:
 
 ~~~bash
@@ -145,6 +157,16 @@ scripts/celestia-healthcheck.sh \
 Use `--local` instead of `--host` when already running on the target host. The
 consensus and bridge checks can be run together when both services are on the
 same host.
+
+The bridge `p2p.Info` check needs an auth token, and celestia-node requires
+**admin** permission for every `p2p` method (`nodebuilder/p2p/p2p.go`,
+`perm:"admin"`, checked at celestia-node v0.34.4), so a `read` token is not
+enough. The script never creates a token. Supply one only when the operator
+wants that check: either `BRIDGE_AUTH_TOKEN` in the environment (sent to the
+target inside the script on stdin) or `--bridge-auth-token-file <path>` for a
+mode-0600 file on the target host. Never pass a token as a command-line
+argument; it is visible in `ps`. Without a token the script reports
+`bridge_p2p_info=skipped_requires_admin_token` and runs the other checks.
 
 Manual consensus baseline:
 
@@ -182,12 +204,16 @@ Manual bridge-node baseline:
 ~~~bash
 systemctl is-active celestia-bridge
 celestia bridge version 2>/dev/null || celestia version
-celestia bridge auth admin --node.store ~/.celestia-bridge
 celestia header sync-state --node.store ~/.celestia-bridge
 celestia p2p info --node.store ~/.celestia-bridge
 celestia state balance --node.store ~/.celestia-bridge
 journalctl -u celestia-bridge --since '30 minutes ago' --no-pager
 ~~~
+
+With `--node.store` and no `--token`, the `celestia` CLI builds its own
+request token from the node keystore and never prints it (`cmd/rpc.go`). Do
+not run `celestia <type> auth admin` in an agent session: it prints a
+long-lived admin token into the transcript.
 
 Interpretation:
 
@@ -318,24 +344,50 @@ Consensus node recovery:
 9. Verify chain ID, height progression, `catching_up=false`, logs,
    local/public gap, and validator signing if applicable.
 
-POSTHUMAN consensus snapshot, when selected by the operator:
+Consensus snapshot from a provider that publishes metadata. Some providers
+publish a `snapshot.json` next to the archive (for example
+`https://snapshots-celestia-mainnet.posthuman.digital/snapshot.json`, with
+`SHA256SUMS` beside it). Read the metadata instead of assuming a fixed file name, check
+it, and verify the download **before** touching the node:
 
 ~~~bash
 export CELESTIA_HOME="$HOME/.celestia-app"
 export SERVICE_NAME="celestia-appd"
+export SNAP_BASE="https://<snapshot-provider>"   # operator-selected; holds snapshot.json
+STAGE_DIR=$(mktemp -d -p /var/tmp celestia-snap.XXXXXX)            # needs room for the archive
+cd "$STAGE_DIR"
 
+# 1. Metadata: chain, height, age, name, checksum.
+curl -fsSo snapshot.json "$SNAP_BASE/snapshot.json"
+jq -r '.chain_id, .snapshot_height, (.created_at // .snapshot_time), .snapshot_name, .snapshot_sha256' snapshot.json
+#    Require chain_id == "celestia". Compare snapshot_height with the live tip
+#    and the creation time with now (field names vary by provider); reject a snapshot older than the operator's
+#    freshness limit or below the chain's pruning window.
+SNAP_NAME=$(jq -r '.snapshot_name' snapshot.json)
+case "$SNAP_NAME" in */*|""|null) echo "unexpected snapshot_name" >&2; exit 1 ;; esac
+
+# 2. Download to a file (not a pipe) and verify both published checksums.
+curl -fLO "$SNAP_BASE/$SNAP_NAME"
+curl -fsSO "$SNAP_BASE/SHA256SUMS"
+printf '%s  %s\n' "$(jq -r '.snapshot_sha256' snapshot.json)" "$SNAP_NAME" | sha256sum -c -
+sha256sum --ignore-missing -c SHA256SUMS
+lz4 -dc "$SNAP_NAME" | tar -tf - | head      # inspect members: expect data/...
+
+# 3. Only after both checksums say OK: stop, move data aside, extract.
 sudo systemctl stop "$SERVICE_NAME"
 cp "$CELESTIA_HOME/data/priv_validator_state.json" \
    "$CELESTIA_HOME/priv_validator_state.json.backup"
-rm -rf "$CELESTIA_HOME/data"
-
-curl -fL https://snapshots.posthuman.digital/celestia-mainnet/snapshot-latest.tar.lz4 | \
-  lz4 -dc | tar -xf - -C "$CELESTIA_HOME"
-
+mv "$CELESTIA_HOME/data" "$CELESTIA_HOME/data.pre-snapshot"   # delete only after approval
+lz4 -dc "$SNAP_NAME" | tar -xf - -C "$CELESTIA_HOME"
 mv "$CELESTIA_HOME/priv_validator_state.json.backup" \
    "$CELESTIA_HOME/data/priv_validator_state.json"
 sudo systemctl restart "$SERVICE_NAME"
 ~~~
+
+If the provider publishes no metadata or checksum, treat the archive as
+unverified: get a checksum from a second channel or choose another source.
+Check `db_backend`, `snapshot_pruned` and layout fields when the metadata has them; a snapshot
+from a different database backend will not start.
 
 Bridge/full/light recovery:
 

@@ -1,6 +1,9 @@
 ---
 name: "validator-onboarding"
 description: "Use when onboarding or registering a validator with readiness, key-custody, parameter, transaction, and monitoring gates."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-onboarding
 ---
 
 # Validator onboarding

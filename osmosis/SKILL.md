@@ -1,6 +1,15 @@
 ---
 name: osmosis-validator-ops
 description: "Operate Osmosis validators, full nodes, public APIs, upgrades, snapshots, IBC, and recovery safely."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/osmosis
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Osmosis Validator Operations
@@ -89,6 +98,8 @@ is not sufficient proof.
   recover, preserve evidence and escalate.
 
 ## Baseline health check
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl`, `journalctl` and `osmosisd`. With `--local` the node itself needs both sets.
 
 Run the bundled helper when possible:
 

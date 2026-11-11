@@ -1,6 +1,9 @@
 ---
 name: "validator-exit-decommission"
 description: "Use when exiting, retiring, or decommissioning a validator with transaction, unbonding, key-retention, and shutdown gates."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-exit-decommission
 ---
 
 # Validator exit and decommission

@@ -267,8 +267,18 @@ else
 fi
 '
 
-if [[ "$LOCAL_MODE" -eq 1 ]]; then
-  bash -s -- "$SERVICE" "$RPC" "$PUBLIC_RPC" "$VALCONS" "$VALCONS_BECH32" "$VALOPER" "$DAEMON" "$HOME_DIR" "$EXPECTED_CHAIN_ID" "$BLOCKS" "$CURL_TIMEOUT" "$LOG_MINUTES" <<<"$REMOTE_SCRIPT"
+# Pass the arguments inside the script text on stdin. ssh joins remote
+# arguments into one string that the remote shell re-splits, which drops empty
+# optional arguments and shifts the rest; a `set --` line with %q-quoted values
+# survives intact in both modes.
+ARGS_PREAMBLE="set -- $(printf '%q ' \
+  "$SERVICE" "$RPC" "$PUBLIC_RPC" "$VALCONS" "$VALCONS_BECH32" \
+  "$VALOPER" "$DAEMON" "$HOME_DIR" "$EXPECTED_CHAIN_ID" "$BLOCKS" \
+  "$CURL_TIMEOUT" "$LOG_MINUTES")"$'\n'
+
+if [[ "$LOCAL_MODE" == "1" ]]; then
+  bash -s <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 else
-  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s -- "$SERVICE" "$RPC" "$PUBLIC_RPC" "$VALCONS" "$VALCONS_BECH32" "$VALOPER" "$DAEMON" "$HOME_DIR" "$EXPECTED_CHAIN_ID" "$BLOCKS" "$CURL_TIMEOUT" "$LOG_MINUTES" <<<"$REMOTE_SCRIPT"
+  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s \
+    <<<"${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 fi

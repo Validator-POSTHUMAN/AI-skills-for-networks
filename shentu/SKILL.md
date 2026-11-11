@@ -1,6 +1,15 @@
 ---
 name: shentu-validator-ops
 description: "Operate Shentu Chain validators on shentu-2.2: monitor node health, verify signing, prepare and execute upgrades, triage Tenderduty alerts, recover safely, and write concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/shentu
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Shentu Validator Ops
@@ -30,8 +39,12 @@ Never claim the validator is healthy, upgraded, or signing without live checks.
   `shentu-2.2` in `shentufoundation/mainnet`
 - Official seeds at publication time:
   `867a2986f28575b1fde864136862fde465cac17c@47.253.209.134:26656,3edd4e16b791218b623f883d04f8aa5c3ff2cca6@shentu-seed.panthea.eu:36656`
-- Latest verified release at publication time: `v2.18.0`
-  (`1e23f5f7c66e90ecc4309f6964b0792d6b1e761b`).
+- Mainnet release, checked 2026-11-12: `v2.20.0`
+  (`4fb05ab59f283804be5be93314585b340ae73d84`), the mandatory upgrade at
+  height `31,812,210`. `v2.20.1`
+  (`b1aecd9173a57dc5784d4abfee741bbe9b8f0590`, 2026-11-03) only fixes genesis
+  export and its release notes set no upgrade height. Source:
+  https://github.com/shentufoundation/shentu/releases.
 
 These are publication-time defaults, not authorization to act. Always refresh
 official repositories, tags, checksums, seeds, and on-chain upgrade plans before
@@ -82,6 +95,8 @@ examples from this skill as real inventory.
   after the upgrade height.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `systemctl` and `shentud`. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 

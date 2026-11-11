@@ -1,6 +1,17 @@
 ---
 name: xrplevm-node-ops
 description: "Operate XRPL EVM nodes and validators: exrpd installation, snapshot and state-sync bootstrap, Proof of Authority admission, consensus-breaking versus patch upgrades, app-hash agreement checks, anti-double-sign discipline, EVM JSON-RPC and indexing, monitoring, hardening, incident triage, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/xrplevm
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
+        - jq
 ---
 
 # XRPL EVM Node Ops
@@ -57,10 +68,22 @@ its upgrade height. Patch releases never appear there, never produce an
 on-chain plan, and `exrpd query upgrade plan` returning `{}` is therefore not
 evidence that there is nothing to do.
 
-Verified 2026-09-18: the table said `v10.1.0` while `cosmos-rpc.xrplevm.org`
-answered `abci_info` with `10.2.1` and an independent ITRocket node answered
-`10.2.0` — same height, same app hash. `v10.2.0` and `v10.2.1` are `cosmos/evm`
-dependency bumps (`v0.6.2-august-2026-hotfix-xrplevm.1` and `.2`).
+Verified 2026-11-12: the current release is `v11.3.0` (tag commit
+`3ee4692cf241dadcf64128449e25a3a6e3631825`, published 2026-10-26), and the
+public mainnet REST reports `application_version` `11.3.0`. Mainnet reached
+it through two governance plans, `v11.2.0` at height `7823200` and `v11.3.0`
+at height `8367050`. There is no applied mainnet plan for `v11.0.0`,
+`v11.1.0` or `v11.1.1`: mainnet went from the `v10.1.0`/`v10.2.x` line
+straight to `v11.2.0`. Testnet applied `v11.1.0` at `8158200` and `v11.3.0` at
+`9280100`. Patch tags such as `v10.2.0`, `v10.2.1` and `v11.1.1` are
+`cosmos/evm` dependency bumps with no plan at all.
+
+Source: `GET /cosmos/upgrade/v1beta1/applied_plan/<name>` on
+`https://cosmos-api.xrplevm.org` (mainnet) and
+`https://cosmos-api.testnet.xrplevm.org` (testnet), queried 2026-11-12; plan
+names from `app/upgrades/*/constants.go` at tag `v11.3.0`; dates from
+https://github.com/xrplevm/node/releases. A height of `0` means "never
+applied on this chain".
 
 **Read the fleet, not only the table.**
 
@@ -77,10 +100,22 @@ stuck, the node's `valcons` absent from `last_commit`.
 a different chain. The only check that settles it is an app-hash comparison at
 a common height against an independent RPC — preferably two.
 
-### The `v11` line is not mainnet
+### A tag is not a mainnet release until its plan passes
 
-`v11.x` tags exist and run on devnet and testnet. Installing one on mainnet
-before the mainnet proposal passes is a self-inflicted fork.
+New tags run on devnet and testnet first, sometimes for weeks (`v11.1.0` ran on
+testnet but never on mainnet). Installing a consensus-breaking tag on mainnet
+before its mainnet plan height is a self-inflicted fork. Check
+`applied_plan/<name>` and `current_plan` on mainnet before swapping binaries.
+
+### `v11.3.0` cannot be built from public source
+
+At tag `v11.3.0`, `go.mod` replaces `github.com/cosmos/evm` with
+`github.com/xrplevm/cosmos-evm-priv-nov-1-2026 v0.6.4-xrplevm.1`, and that
+repository was not publicly reachable on 2026-11-12 (GitHub 404). A
+third-party `make install` therefore fails. Use the release archive for your
+platform verified against the release's `checksums.txt`, or the
+`peersyst/exrp:v11.3.0` image, and re-check on the next release whether the
+fork has been published.
 
 ## Source priority
 
@@ -128,13 +163,16 @@ no per-client limit.
 | Testnet | `xrplevm_1449000-1` / `1449000` / `0x161c28` |
 | Devnet | `xrplevm_1449900-1` / `1449900` |
 | Binary | `exrpd` |
-| CometBFT | `0.38.19` |
-| Cosmos SDK | `v0.53.x-xrplevm` |
+| CometBFT | `v0.38.21` in `go.mod` at `v11.3.0`; `node_info` still reports the version string `0.38.19` |
+| Cosmos SDK | `v0.53.6`, replaced by the fork `xrplevm/cosmos-sdk v0.53.6-xrplevm.1` |
+| `cosmos/evm` | fork `v0.6.4-xrplevm.1` (not public at `v11.3.0`, see above) |
 | Denom | `axrp`, 18 decimals, displayed as XRP |
 | Bech32 | `ethm1…`, `ethmvaloper1…`, `ethmvalcons1…` |
 | Operator key type | `eth_secp256k1` — **not** the Cosmos default |
 | `evm-chain-id` in `app.toml` | mandatory since v10 |
-| Mainnet upgrade heights | v8 `497000`, v9 `4688681`, v10 `4749000`, v10.1 `6856000` |
+| Current release | `v11.3.0`, tag commit `3ee4692cf241dadcf64128449e25a3a6e3631825` |
+| Mainnet upgrade heights | v8 `497000`, v9 `4688681`, v10 `4749000`, v10.1 `6856000`, v11.2.0 `7823200`, v11.3.0 `8367050` |
+| Testnet v11 heights | v11.1.0 `8158200`, v11.3.0 `9280100` |
 | Docker image | `peersyst/exrp:<tag>` |
 | Admission | 7-day Proof of Authority vote |
 
@@ -230,6 +268,8 @@ node the report is incomplete without:
   binary is staged for it.
 
 ## `scripts/xrplevm-healthcheck.sh`
+
+Script requirements: the machine that runs the script needs `bash`, `curl`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl` and `ss`. With `--local` the node itself needs both sets.
 
 Read-only. Runs no mutating command, changes nothing, prints no credential.
 

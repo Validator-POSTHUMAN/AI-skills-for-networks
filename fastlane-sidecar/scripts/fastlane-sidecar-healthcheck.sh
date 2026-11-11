@@ -25,6 +25,16 @@ Options:
   --rpc-service NAME        Default: monad-rpc
   --execution-service NAME  Default: monad-execution
   --fastlane-user USER      Default: fastlane
+
+The sidecar runs under rootless Docker owned by the fastlane user, so its
+containers are visible only through that user's Docker socket
+(/run/user/<uid>/docker.sock). The script therefore reads container state as
+that user: directly when it already runs as that user, otherwise through
+sudo -iu USER. Read-only docker ps/inspect/logs only. At a terminal sudo may
+prompt for a password as before; without a terminal (for example --host over
+SSH) it uses sudo -n and skips those checks with a note when a password would
+be needed. Run as the fastlane user, or give the login a narrow sudo rule for
+that user, to avoid the prompt.
 USAGE
 }
 
@@ -61,13 +71,35 @@ echo "== ipc socket =="
 ls -l /var/run/monad-ipc /var/run/monad-ipc/mempool.sock 2>/dev/null || true
 getfacl -p /var/run/monad-ipc /var/run/monad-ipc/mempool.sock 2>/dev/null || true
 
+# Rootless Docker: the container lives behind the fastlane user's own socket,
+# and the docker CLI for a rootless install is often only on that user's login
+# PATH, hence a login shell (-i). Without a terminal, -n makes sudo fail fast
+# with a clear skip note instead of the opaque "a terminal is required" error;
+# at a terminal sudo may still prompt for a password.
+as_fastlane_docker() {
+  local uid
+  uid=$(id -u "$FASTLANE_USER")
+  if [ "$(id -un)" = "$FASTLANE_USER" ]; then
+    DOCKER_HOST="unix:///run/user/$uid/docker.sock" docker "$@"
+  elif [ -t 0 ]; then
+    sudo -iu "$FASTLANE_USER" env DOCKER_HOST="unix:///run/user/$uid/docker.sock" docker "$@"
+  else
+    sudo -n -iu "$FASTLANE_USER" env DOCKER_HOST="unix:///run/user/$uid/docker.sock" docker "$@"
+  fi
+}
+
+can_read_fastlane_docker() {
+  [ "$(id -un)" = "$FASTLANE_USER" ] || [ -t 0 ] || sudo -n -u "$FASTLANE_USER" true 2>/dev/null
+}
+
 echo "== docker container =="
 if id "$FASTLANE_USER" >/dev/null 2>&1; then
-  uid=$(id -u "$FASTLANE_USER")
-  sudo -iu "$FASTLANE_USER" env DOCKER_HOST="unix:///run/user/$uid/docker.sock" \
-    docker ps --filter "name=$CONTAINER" --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' || true
-  sudo -iu "$FASTLANE_USER" env DOCKER_HOST="unix:///run/user/$uid/docker.sock" \
-    docker inspect "$CONTAINER" --format '{{.Image}}' 2>/dev/null || true
+  if ! can_read_fastlane_docker; then
+    echo "skipped: run as $FASTLANE_USER or allow non-interactive sudo to read its rootless Docker"
+  else
+    as_fastlane_docker ps --filter "name=$CONTAINER" --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' || true
+    as_fastlane_docker inspect "$CONTAINER" --format '{{.Image}}' 2>/dev/null || true
+  fi
 else
   echo "fastlane user not found: $FASTLANE_USER"
 fi
@@ -81,9 +113,11 @@ curl -fsS "$METRICS_URL" | head -40 || true
 
 echo "== recent sidecar logs =="
 if id "$FASTLANE_USER" >/dev/null 2>&1; then
-  uid=$(id -u "$FASTLANE_USER")
-  sudo -iu "$FASTLANE_USER" env DOCKER_HOST="unix:///run/user/$uid/docker.sock" \
-    docker logs --tail 80 "$CONTAINER" 2>&1 || true
+  if can_read_fastlane_docker; then
+    as_fastlane_docker logs --tail 80 "$CONTAINER" 2>&1 || true
+  else
+    echo "skipped: no access to $FASTLANE_USER's rootless Docker"
+  fi
 fi
 REMOTE
 )

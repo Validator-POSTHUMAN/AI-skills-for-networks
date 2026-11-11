@@ -17,7 +17,10 @@ BRIDGE_RPC="http://127.0.0.1:26658"
 BRIDGE_NODE_TYPE="bridge"
 NODE_STORE=""
 CORE_RPC=""
-BRIDGE_AUTH_TOKEN=""
+# Optional DA node auth token. Read from the environment only, never from the
+# command line, so it does not appear in `ps` output on either host.
+BRIDGE_AUTH_TOKEN="${BRIDGE_AUTH_TOKEN:-}"
+BRIDGE_AUTH_TOKEN_FILE=""
 
 usage() {
   cat <<'USAGE'
@@ -57,8 +60,19 @@ Options:
   --bridge-node-type <type>     bridge, full, or light. Default: bridge.
   --node-store <path>           DA node store, e.g. ~/.celestia-bridge.
   --bridge-rpc <url>            DA node JSON-RPC endpoint. Default: http://127.0.0.1:26658.
-  --bridge-auth-token <token>   Optional DA node auth token. Omit to let script try celestia auth.
+  --bridge-auth-token-file <path>
+                                Optional file on the target host holding a DA node
+                                auth token (mode 0600). Only the path crosses SSH.
   --core-rpc <url>              Optional trusted core RPC used by the DA node.
+
+Environment:
+  BRIDGE_AUTH_TOKEN             Optional DA node auth token. Sent to the target
+                                inside the script on stdin, never as an argument.
+
+The p2p.Info bridge check runs only when a token is supplied. celestia-node
+requires admin permission for p2p.Info (nodebuilder/p2p/p2p.go, perm:"admin"),
+so this script never creates a token itself; without one it reports
+bridge_p2p_info=skipped_requires_admin_token and runs the other checks.
 USAGE
 }
 
@@ -79,7 +93,11 @@ while [[ $# -gt 0 ]]; do
     --bridge-node-type) BRIDGE_NODE_TYPE="$2"; shift 2 ;;
     --node-store) NODE_STORE="$2"; shift 2 ;;
     --bridge-rpc) BRIDGE_RPC="$2"; shift 2 ;;
-    --bridge-auth-token) BRIDGE_AUTH_TOKEN="$2"; shift 2 ;;
+    --bridge-auth-token|--bridge-auth-token=*)
+      echo "--bridge-auth-token is no longer accepted: a token on the command line is visible in ps." >&2
+      echo "Set BRIDGE_AUTH_TOKEN in the environment or pass --bridge-auth-token-file <path-on-target>." >&2
+      exit 2 ;;
+    --bridge-auth-token-file) BRIDGE_AUTH_TOKEN_FILE="$2"; shift 2 ;;
     --core-rpc) CORE_RPC="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage; exit 2 ;;
@@ -132,7 +150,9 @@ BRIDGE_RPC="${11}"
 BRIDGE_NODE_TYPE="${12}"
 NODE_STORE="${13}"
 CORE_RPC="${14}"
-BRIDGE_AUTH_TOKEN="${15}"
+BRIDGE_AUTH_TOKEN_FILE="${15}"
+# BRIDGE_AUTH_TOKEN may have been set by a preamble line prepended on stdin.
+BRIDGE_AUTH_TOKEN="${BRIDGE_AUTH_TOKEN:-}"
 
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -149,10 +169,12 @@ post_json() {
   local url="$1"
   local token="$2"
   local body="$3"
+  # The Authorization header is read from stdin (-H @-, curl >= 7.55) so the
+  # token never appears in curl's argument list.
   curl -fsS --max-time "$CURL_TIMEOUT" \
-    -H "Authorization: Bearer $token" \
+    -H @- \
     -H 'Content-Type: application/json' \
-    -d "$body" "$url"
+    -d "$body" "$url" <<<"Authorization: Bearer $token"
 }
 
 is_uint() {
@@ -291,10 +313,21 @@ if [[ -n "$BRIDGE_SERVICE" || -n "$NODE_STORE" ]]; then
     celestia state balance "${STORE_ARG[@]}" 2>/dev/null || echo "balance_error=true"
     echo "balance_end"
 
-    if [[ -z "$BRIDGE_AUTH_TOKEN" ]]; then
-      BRIDGE_AUTH_TOKEN="$(celestia "$BRIDGE_NODE_TYPE" auth admin "${STORE_ARG[@]}" 2>/dev/null || true)"
+    if [[ -z "$BRIDGE_AUTH_TOKEN" && -n "$BRIDGE_AUTH_TOKEN_FILE" ]]; then
+      if [[ -r "$BRIDGE_AUTH_TOKEN_FILE" ]]; then
+        TOKEN_FILE_MODE="$(stat -c '%a' "$BRIDGE_AUTH_TOKEN_FILE" 2>/dev/null || echo unknown)"
+        case "$TOKEN_FILE_MODE" in
+          400|600) ;;
+          *) echo "bridge_auth_token_file_warning=mode_${TOKEN_FILE_MODE}_expected_600" ;;
+        esac
+        BRIDGE_AUTH_TOKEN="$(tr -d '[:space:]' <"$BRIDGE_AUTH_TOKEN_FILE")"
+      else
+        echo "bridge_auth_token_file=unreadable"
+      fi
     fi
 
+    # No token is ever created here: p2p.Info needs an admin token, and minting
+    # one is an operator decision, not a health-check side effect.
     if [[ -n "$BRIDGE_AUTH_TOKEN" ]]; then
       if INFO_JSON="$(post_json "$BRIDGE_RPC" "$BRIDGE_AUTH_TOKEN" '{"jsonrpc":"2.0","id":0,"method":"p2p.Info","params":[]}' 2>/dev/null)"; then
         printf '%s' "$INFO_JSON" | jq -r '
@@ -304,7 +337,7 @@ if [[ -n "$BRIDGE_SERVICE" || -n "$NODE_STORE" ]]; then
         echo "bridge_jsonrpc_error=p2p_info_failed"
       fi
     else
-      echo "bridge_auth_token=unavailable"
+      echo "bridge_p2p_info=skipped_requires_admin_token"
     fi
   else
     echo "celestia_binary=missing"
@@ -331,16 +364,24 @@ fi
 REMOTE
 )"
 
+# Pass the arguments and any environment-supplied token inside the script text
+# on stdin, not as command-line arguments. ssh joins remote arguments into one
+# string that the remote shell re-splits, which drops empty arguments and
+# shifts the rest; a `set --` line with %q-quoted values survives intact, and
+# neither the token nor the other values appear in either host's process list.
+TOKEN_PREAMBLE=""
+if [[ -n "$BRIDGE_AUTH_TOKEN" ]]; then
+  TOKEN_PREAMBLE="BRIDGE_AUTH_TOKEN=$(printf '%q' "$BRIDGE_AUTH_TOKEN")"$'\n'
+fi
+ARGS_PREAMBLE="set -- $(printf '%q ' \
+  "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
+  "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
+  "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
+  "$CORE_RPC" "$BRIDGE_AUTH_TOKEN_FILE")"$'\n'
+
 if [[ "$LOCAL_MODE" == "1" ]]; then
-  bash -s -- \
-    "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
-    "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
-    "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
-    "$CORE_RPC" "$BRIDGE_AUTH_TOKEN" <<<"$REMOTE_SCRIPT"
+  bash -s <<<"${TOKEN_PREAMBLE}${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 else
-  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s -- \
-    "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
-    "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
-    "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
-    "$CORE_RPC" "$BRIDGE_AUTH_TOKEN" <<<"$REMOTE_SCRIPT"
+  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s \
+    <<<"${TOKEN_PREAMBLE}${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 fi

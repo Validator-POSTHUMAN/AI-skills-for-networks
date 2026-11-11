@@ -1,6 +1,9 @@
 ---
 name: junoclaw-validator-ops
 description: "Operate JunoClaw G2 validators: threshold reshares, single-signer cutovers, state sync, finality/signing checks, and recovery."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/junoclaw
 ---
 
 # JunoClaw validator operations
@@ -11,7 +14,7 @@ Use for a JunoClaw G2 seat running `slay3rd` on the Commonware-based chain. Juno
 
 1. Read private inventory and the current coordinator-approved roster, window and config. Compare the [validator guide](https://junoclaw.xyz/docs/onboarding/validators/), [run-a-node guide](https://junoclaw.xyz/docs/reference/run-a-node/), and [releases](https://github.com/Dragonmonk111/layer-sdk/releases). Check exact chain ID, binary provenance/digest, genesis, peer IDs, index, quorum and anchor. G2 has used `junoclaw-g1`; the reference devnet's `junoclaw-1` is not interchangeable.
 2. Check dedicated host/network failure domain, NTP drift under two seconds, reachable P2P TCP 7001, adequate resources (official minimum two cores, 4 GB RAM, 20 GB SSD), and private gRPC TCP 9090 unless publication was approved. Prove one signer placement before start or key movement.
-3. Pin ceremony tool and node binary to an authenticated release or coordinator package and checksum. A digest supplied with an unauthenticated download proves byte agreement, **not publisher authenticity**. The 2026-10-22 fleet used a coordinator-distributed rc14v3 build, but its full build commit and independent publisher authenticity were not established locally. Do not install an unverified URL from forwarded text; coordinate version/config changes across the set.
+3. Pin ceremony tool and node binary to an authenticated release or coordinator package and checksum. A digest supplied with an unauthenticated download proves byte agreement, **not publisher authenticity**. Coordinator-distributed builds (for example the rc14v3 build used across the set in October 2026) may not come with a published build commit or independently verifiable publisher signature; treat such a build as unauthenticated until both are available. Do not install an unverified URL from forwarded text; coordinate version/config changes across the set.
 
 ## Threshold reshare and key custody
 

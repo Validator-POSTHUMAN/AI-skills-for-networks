@@ -1,6 +1,9 @@
 ---
-name: "atomone"
+name: atomone-validator-ops
 description: "Operate AtomOne validators, Photon, REStake/Authz, upgrades, snapshots, governance, public APIs, incidents, and recovery."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/atomone
 ---
 
 # AtomOne Validator Operations

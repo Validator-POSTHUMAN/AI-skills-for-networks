@@ -36,7 +36,7 @@ Notes:
   onboarded validator. Run --scan-url from the validator host, or omit it.
 
 Example:
-  canton-healthcheck.sh --host valoper@1.2.3.4 --network mainnet \
+  canton-healthcheck.sh --host <user>@<host> --network mainnet \
     --scan-url https://scan.sv-1.global.canton.network.digitalasset.com
 USAGE
 }

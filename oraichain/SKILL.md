@@ -1,6 +1,15 @@
 ---
 name: oraichain-validator-ops
 description: "Operate Oraichain validators and nodes: monitor oraid health and signing, prepare upgrades, triage RPC/API/gRPC and CosmWasm/oracle issues, recover safely, and write concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/oraichain
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
 ---
 
 # Oraichain Validator Ops
@@ -107,6 +116,8 @@ contract changes, or oracle/VRF provider changes.
   contract changes, and oracle/VRF provider updates as approval-gated.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash` and `ssh` for `--host`; on the target node it calls `curl`, `jq`, `timeout`, `systemctl`, `journalctl` and `oraid`. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 

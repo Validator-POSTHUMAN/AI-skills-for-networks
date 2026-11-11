@@ -1,6 +1,16 @@
 ---
 name: near-validator-ops
 description: "Operate NEAR validators, RPC and archival nodes: neard health and sync, staking-pool creation and ping, epoch proposals, endorsement and chunk production, key custody, split-storage archival, epoch/state sync, monitoring, upgrades, safe recovery, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/near
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - jq
 ---
 
 # NEAR Validator Ops
@@ -46,7 +56,10 @@ staking module.
 - Mainnet chain ID: `mainnet`; testnet chain ID: `testnet`.
 - Binary: `neard` from `near/nearcore`. Mainnet runs the latest **stable** tag;
   testnet runs the latest **release candidate**.
-- Reference point: stable `2.13.4`, mainnet protocol version `86`. Always
+- Reference point, checked 2026-11-12: stable `2.14.1` (released 2026-11-11, a
+  CODE_RED security release with no protocol or database upgrade); mainnet
+  protocol version `88` (public RPC `status`). Source:
+  https://github.com/near/nearcore/releases. Always
   re-verify against the releases page and live `status`.
 - Ports: `24567/tcp` P2P; `3030/tcp` serves **both** JSON-RPC and Prometheus
   `/metrics`. There is no separate metrics port.
@@ -93,6 +106,8 @@ Rules:
   and `pgrep -a neard`.
 
 ## Health Check Sequence
+
+Script requirements: the machine that runs the script needs `bash`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `systemctl` and `journalctl`. With `--local` the node itself needs both sets.
 
 Run in this order and record the output. Use `127.0.0.1`, never `localhost` —
 IPv6-first resolution against a service bound to `0.0.0.0` adds hundreds of

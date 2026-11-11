@@ -43,6 +43,10 @@ valoper, or consensus-address input.
   and assumeutxo, RPC and indexer backends, Lightning node operations for LND
   and Core Lightning, mining setup, monitoring, security hardening, upgrades,
   and backup and recovery.
+- [Canton Network](canton/SKILL.md) — Canton Network validator operations on
+  MainNet, TestNet and DevNet: Splice stack health, sync lag and automation
+  triggers, scan API access, identities and database backups, disaster
+  recovery, upgrades and migration IDs, and security hardening.
 - [Celestia](celestia/SKILL.md) — Celestia consensus validator and full-node
   operations plus Fibre registration and Data Availability bridge/full/light
   node checks, including `celestia-appd`, `celestia-node`, public endpoints,
@@ -68,11 +72,13 @@ valoper, or consensus-address input.
   operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
   snapshot, and Sway/forc workflows.
 - [JunoClaw G2 Testnet](junoclaw/SKILL.md) — Threshold-share validator onboarding, coordinated starts and upgrades, certified state sync, finality and signing checks, and safe recovery.
-- [Limonata](limonata/SKILL.md) — Limonata testnet validator and full-node
-  operations, including encrypted-mempool, DKG, recovery, and restart safety.
 - [Monad](monad/SKILL.md) — Monad validator and full-node operations for
   mainnet and testnet, including `monad-bft`, `monad-execution`,
   `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
+- [NEAR](near/SKILL.md) — NEAR validator, RPC and archival node operations:
+  `neard` health and sync, staking-pool creation and ping, epoch proposals,
+  chunk production and endorsement, key custody, split-storage archival,
+  monitoring, upgrades, and safe recovery.
 - [Oraichain](oraichain/SKILL.md) — Oraichain oraid validator and node
   operations for mainnet, including RPC/API/gRPC checks, signing, upgrades,
   snapshot recovery, CosmWasm, oracle, VRF, OraiDEX/OBridge/OraiBTC, and
@@ -92,6 +98,10 @@ valoper, or consensus-address input.
 - [Starknet](starknet/SKILL.md) — Starknet full-node, JSON-RPC,
   validator/staking/attestation, Cairo tooling, and Starkzap/app integration
   workflows.
+- [The Graph](the-graph/SKILL.md) — Graph Protocol indexer operations under
+  Graph Horizon: stack and deployment health, allocations and rules,
+  GraphTally/TAP payments, POI staleness, rewards eligibility, delegation
+  review, upgrades, and security gates.
 - [XRPL EVM](xrplevm/SKILL.md) — XRPL EVM `exrpd` validator and full-node
   operations for `xrplevm_1440000-1`, including Proof of Authority admission,
   snapshot and state-sync bootstrap, app-hash agreement against independent
@@ -131,13 +141,10 @@ A mature network skill may include:
 
 ## License
 
-This repository is licensed under the Creative Commons Attribution 4.0
-International Public License (CC BY 4.0).
+This repository is licensed under MIT No Attribution (MIT-0). You may use,
+copy, modify, redistribute, and adapt these skills, including for commercial
+and internal validator operations, without attribution. Skills published on
+ClawHub are distributed under the same MIT-0 terms.
 
-You may use, copy, modify, redistribute, and adapt these skills, including for
-commercial and internal validator operations, provided that attribution is given
-to the creator:
-
-POSTHUMAN validator - https://github.com/Validator-POSTHUMAN
-
-See [LICENSE](LICENSE) and [ATTRIBUTION.md](ATTRIBUTION.md).
+See [LICENSE](LICENSE). Credits and the relicensing note (CC BY 4.0 to MIT-0 on
+2026-11-12, with contributor agreement) are in [ATTRIBUTION.md](ATTRIBUTION.md).

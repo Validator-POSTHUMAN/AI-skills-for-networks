@@ -1,6 +1,9 @@
 ---
 name: "validator-snapshot-recovery"
 description: "Use when recovering validator or full nodes from snapshots with integrity, state, rollback, and sync verification."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/validator-snapshot-recovery
 ---
 
 # Validator snapshot recovery

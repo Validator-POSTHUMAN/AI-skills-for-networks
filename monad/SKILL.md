@@ -1,6 +1,17 @@
 ---
 name: monad-validator-ops
 description: "Operate Monad validators and full nodes on mainnet/testnet: monitor monad-bft, monad-execution, monad-rpc, TrieDB, OTel, JSON-RPC health, execution events/WebSockets, staking state, FastLane/shMonad sidecar integration, upgrades, safe recovery, and concise operator reports."
+metadata:
+  openclaw:
+    homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/monad
+    os:
+      - linux
+    requires:
+      bins:
+        - bash
+        - ssh
+        - curl
+        - jq
 ---
 
 # Monad Validator Ops
@@ -183,6 +194,8 @@ Monad-specific sidecar guardrails:
   and recent logs.
 
 ## Health Check Workflow
+
+Script requirements: the machine that runs the script needs `bash`, `curl`, `jq` and `ssh` for `--host`; on the target node it calls `curl`, `timeout`, `systemctl`, `journalctl` and `ss`. With `--local` the node itself needs both sets.
 
 Use the bundled script when possible:
 
