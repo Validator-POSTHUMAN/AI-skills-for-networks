@@ -75,6 +75,10 @@ valoper, or consensus-address input.
 - [Monad](monad/SKILL.md) — Monad validator and full-node operations for
   mainnet and testnet, including `monad-bft`, `monad-execution`,
   `monad-rpc`, TrieDB, OTel, staking, upgrades, and recovery checks.
+- [NEAR](near/SKILL.md) — NEAR validator, RPC and archival node operations:
+  `neard` health and sync, staking-pool creation and ping, epoch proposals,
+  chunk production and endorsement, key custody, split-storage archival,
+  monitoring, upgrades, and safe recovery.
 - [Oraichain](oraichain/SKILL.md) — Oraichain oraid validator and node
   operations for mainnet, including RPC/API/gRPC checks, signing, upgrades,
   snapshot recovery, CosmWasm, oracle, VRF, OraiDEX/OBridge/OraiBTC, and
