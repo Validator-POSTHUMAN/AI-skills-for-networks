@@ -139,16 +139,17 @@ scripts/fastlane-sidecar-healthcheck.sh --local --health-url http://127.0.0.1:87
 
 The script reads the sidecar's containers as the `fastlane` user (override
 with `--fastlane-user`) because rootless Docker exposes them only on that
-user's socket. It uses `sudo -n -iu` only when it is not already running as
-that user, never prompts for a password, and runs only read-only `docker ps`,
-`inspect` and `logs`.
+user's socket. It uses `sudo -iu` only when it is not already running as
+that user; without a terminal (for example `--host`) it uses `sudo -n` and
+skips the container checks with a note instead of failing on a password
+prompt. It runs only read-only `docker ps`, `inspect` and `logs`.
 
 Manual checks:
 
 ~~~bash
 systemctl is-active monad-bft monad-execution monad-rpc || true
 # Rootless Docker: read the fastlane user's own socket (read-only commands).
-sudo -n -iu fastlane env DOCKER_HOST=unix:///run/user/$(id -u fastlane)/docker.sock \
+sudo -iu fastlane env DOCKER_HOST=unix:///run/user/$(id -u fastlane)/docker.sock \
   docker ps --filter name=fastlane-sidecar
 curl -fsS http://127.0.0.1:8765/health
 curl -fsS http://127.0.0.1:8765/metrics | head
