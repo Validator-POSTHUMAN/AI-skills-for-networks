@@ -1,11 +1,13 @@
 # Fibre installation: mainnet and Mocha-5
 
-Use this with [the Celestia skill](../SKILL.md) and the [official Fibre guide](https://docs.celestia.org/operate/consensus-validators/fibre/). This is a same-host, local-disk procedure for an existing bonded validator, not a validator-key migration or a Bridge/Light node install. Check the current official release and chain activation before acting; the release examples below were checked on 2026-10-29.
+Use this with [the Celestia skill](../SKILL.md) and the [official Fibre guide](https://docs.celestia.org/operate/consensus-validators/fibre/). This is a same-host, local-disk procedure for an existing bonded validator, not a validator-key migration or a Bridge/Light node install. Check the current official release and chain activation before acting; the release examples below were checked on 2026-11-12 against the celestia-app GitHub releases (`v10.6.0` and `v10.6.0-mocha`, both tag commit `25f09cab3f8912bbe78c62909e8d39d8fa8b3fc0`, each publishing `fibre_Linux_x86_64.tar.gz`, `fibre_Linux_arm64.tar.gz` and `checksums.txt`).
 
 | Network | Chain ID | Matching app and Fibre release |
 | --- | --- | --- |
-| Mainnet Beta | `celestia` | `v10.5.0` |
-| Mocha-5 | `mocha-5` | `v10.5.0-mocha` |
+| Mainnet Beta | `celestia` | `v10.6.0` |
+| Mocha-5 | `mocha-5` | `v10.6.0-mocha` |
+
+`v10.6.0` is a minor release for nodes already on app version 10 and needs no coordinated upgrade; replace the app and Fibre binaries together and restart. Source builds need Go 1.26.10. (Source: celestia-app `v10.6.0` release notes, "Upgrade Notice".)
 
 ## 1. Preflight
 
@@ -20,8 +22,8 @@ If the consensus key is held in an external KMS, verify the exact release's KMS 
 Select the version for the exact chain above. The host must meet the published release's OS requirements; Fibre's Linux archive requires glibc >=2.34. Stage in a fresh empty directory (do not reuse an app home):
 
 ```bash
-# Set this to v10.5.0 for celestia, or v10.5.0-mocha for mocha-5.
-FIBRE_VERSION=v10.5.0
+# Set this to v10.6.0 for celestia, or v10.6.0-mocha for mocha-5.
+FIBRE_VERSION=v10.6.0
 STAGE_DIR=$(mktemp -d -p /tmp celestia-fibre.XXXXXX)
 cd "$STAGE_DIR"
 curl -fLO "https://github.com/celestiaorg/celestia-app/releases/download/${FIBRE_VERSION}/fibre_Linux_x86_64.tar.gz"
