@@ -364,23 +364,24 @@ fi
 REMOTE
 )"
 
-# Pass an environment-supplied token inside the script text on stdin, not as
-# an argument, so it is not visible in the process list of either host.
+# Pass the arguments and any environment-supplied token inside the script text
+# on stdin, not as command-line arguments. ssh joins remote arguments into one
+# string that the remote shell re-splits, which drops empty arguments and
+# shifts the rest; a `set --` line with %q-quoted values survives intact, and
+# neither the token nor the other values appear in either host's process list.
 TOKEN_PREAMBLE=""
 if [[ -n "$BRIDGE_AUTH_TOKEN" ]]; then
   TOKEN_PREAMBLE="BRIDGE_AUTH_TOKEN=$(printf '%q' "$BRIDGE_AUTH_TOKEN")"$'\n'
 fi
+ARGS_PREAMBLE="set -- $(printf '%q ' \
+  "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
+  "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
+  "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
+  "$CORE_RPC" "$BRIDGE_AUTH_TOKEN_FILE")"$'\n'
 
 if [[ "$LOCAL_MODE" == "1" ]]; then
-  bash -s -- \
-    "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
-    "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
-    "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
-    "$CORE_RPC" "$BRIDGE_AUTH_TOKEN_FILE" <<<"${TOKEN_PREAMBLE}${REMOTE_SCRIPT}"
+  bash -s <<<"${TOKEN_PREAMBLE}${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 else
-  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s -- \
-    "$CONSENSUS_SERVICE" "$CONSENSUS_RPC" "$PUBLIC_RPC" "$VALCONS" "$VALOPER" \
-    "$EXPECTED_CHAIN_ID" "$DAEMON" "$BLOCKS" "$CURL_TIMEOUT" \
-    "$BRIDGE_SERVICE" "$BRIDGE_RPC" "$BRIDGE_NODE_TYPE" "$NODE_STORE" \
-    "$CORE_RPC" "$BRIDGE_AUTH_TOKEN_FILE" <<<"${TOKEN_PREAMBLE}${REMOTE_SCRIPT}"
+  ssh -o BatchMode=yes -o ConnectTimeout=10 "$HOST" bash -s \
+    <<<"${TOKEN_PREAMBLE}${ARGS_PREAMBLE}${REMOTE_SCRIPT}"
 fi
