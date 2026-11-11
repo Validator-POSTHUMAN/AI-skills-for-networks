@@ -346,22 +346,22 @@ Consensus node recovery:
 
 Consensus snapshot from a provider that publishes metadata. Some providers
 publish a `snapshot.json` next to the archive (for example
-`https://snapshots.posthuman.digital/celestia-mainnet/`, which also publishes
-`SHA256SUMS`). Read the metadata instead of assuming a fixed file name, check
+`https://snapshots-celestia-mainnet.posthuman.digital/snapshot.json`, with
+`SHA256SUMS` beside it). Read the metadata instead of assuming a fixed file name, check
 it, and verify the download **before** touching the node:
 
 ~~~bash
 export CELESTIA_HOME="$HOME/.celestia-app"
 export SERVICE_NAME="celestia-appd"
-export SNAP_BASE="https://<snapshot-provider>/celestia-mainnet"   # operator-selected
+export SNAP_BASE="https://<snapshot-provider>"   # operator-selected; holds snapshot.json
 STAGE_DIR=$(mktemp -d -p /var/tmp celestia-snap.XXXXXX)            # needs room for the archive
 cd "$STAGE_DIR"
 
 # 1. Metadata: chain, height, age, name, checksum.
 curl -fsSo snapshot.json "$SNAP_BASE/snapshot.json"
-jq -r '.chain_id, .snapshot_height, .snapshot_time, .snapshot_name, .snapshot_sha256' snapshot.json
+jq -r '.chain_id, .snapshot_height, (.created_at // .snapshot_time), .snapshot_name, .snapshot_sha256' snapshot.json
 #    Require chain_id == "celestia". Compare snapshot_height with the live tip
-#    and snapshot_time with now; reject a snapshot older than the operator's
+#    and the creation time with now (field names vary by provider); reject a snapshot older than the operator's
 #    freshness limit or below the chain's pruning window.
 SNAP_NAME=$(jq -r '.snapshot_name' snapshot.json)
 case "$SNAP_NAME" in */*|""|null) echo "unexpected snapshot_name" >&2; exit 1 ;; esac
@@ -386,7 +386,7 @@ sudo systemctl restart "$SERVICE_NAME"
 
 If the provider publishes no metadata or checksum, treat the archive as
 unverified: get a checksum from a second channel or choose another source.
-Check `db_backend` and pruning fields when the metadata has them; a snapshot
+Check `db_backend`, `snapshot_pruned` and layout fields when the metadata has them; a snapshot
 from a different database backend will not start.
 
 Bridge/full/light recovery:
