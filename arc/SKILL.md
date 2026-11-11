@@ -63,7 +63,10 @@ warning in the logs the day before.
 | Arc Testnet | Zero8 | `1788447600` | 2026-09-03 15:00 UTC | `v0.8.0` |
 | Arc mainnet | Zero7 + Zero8 | `1789052400` | 2026-09-10 15:00 UTC | `v0.8.0` |
 
-Both have passed. `v0.8.0` is mandatory on both networks today.
+Both have passed. `v0.8.0` or later is mandatory on both networks today. The
+current release is `v0.8.4`; the `v0.8.1`–`v0.8.4` release notes announce no
+new hardfork, so treat them as recommended rather than deadline-bound unless
+Circle says otherwise.
 
 Testnet activates about a week before mainnet, which is the entire operational
 value of running a testnet node here: it is an early warning that a release is
@@ -121,7 +124,7 @@ The RPC transport between the layers is **deprecated in `v0.8.0` and removed in
 | Arc Testnet chain ID | `5042002` / `0x4cef52` |
 | Arc Devnet chain ID | `5042001` |
 | Chain spec names | `arc-mainnet`, `arc-testnet`, `arc-devnet`, `arc-localdev` |
-| Current release | `v0.8.0`, tag commit `66ad2d5aa6d9b41e8f689812004be4c7233a9e16` |
+| Current release | `v0.8.4`, tag commit `0470b92745e365bc5b3485d45c8f93dab09eae75` (checked 2026-11-12, https://github.com/circlefin/arc-node/releases) |
 | Gas token | USDC — **18 decimals natively, 6 as ERC-20** |
 | Mempool `maxFeePerGas` floor | 20 Gwei |
 | Base-fee cap | 20,000 gwei |

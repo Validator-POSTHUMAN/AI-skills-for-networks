@@ -48,7 +48,11 @@ changing production configuration.
   includes standard Cosmos modules plus Provenance modules such as marker,
   metadata, name, attribute, exchange, smart contract, and related application
   functionality.
-- Latest official Provenance release observed at publication time: `v1.29.0`.
+- Latest official Provenance release, checked 2026-11-12: `v1.31.0` (tag commit
+  `d9c53c8e0c88784142e8b91c5ba0829a6af498c0`, released 2026-10-02; source:
+  https://github.com/provenance-io/provenance/releases). Its bundled
+  `libwasmvm` needs glibc 2.30 or newer; EL8 hosts need the alternate library
+  attached to the release (see the `v1.31.0` release notes).
 
 These are orientation facts, not authorization to act. Verify live state and
 current upstream documentation before changing a production node.
