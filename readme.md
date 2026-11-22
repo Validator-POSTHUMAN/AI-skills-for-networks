@@ -68,6 +68,10 @@ valoper, or consensus-address input.
   sidecar operations for Monad validators, including onboarding order,
   rootless Docker isolation, mempool IPC wiring, release verification,
   health checks, upgrades, and rollback.
+- [FLOP Devnet](flop/SKILL.md) — FLOP GPU inference miner operations on the
+  public devnet path: genesis, model and decode-policy preflight, sponsorship,
+  vLLM backend and worker, session endpoint behind TLS or a tunnel,
+  calibration, health checks, downtime budget, and safe retirement.
 - [Fuel](fuel/SKILL.md) — Fuel Ignition fuel-core full-node and GraphQL
   operations plus Fuel Sequencer node, validator, sidecar, bridge, upgrade,
   snapshot, and Sway/forc workflows.
