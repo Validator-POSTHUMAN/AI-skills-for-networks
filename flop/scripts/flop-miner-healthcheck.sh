@@ -23,7 +23,7 @@ ADDRESS=""
 GENESIS=""
 JSON=0
 
-usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+usage() { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) DIR="${2:-}"; shift 2 || usage ;;
