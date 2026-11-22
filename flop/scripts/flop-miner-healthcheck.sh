@@ -8,10 +8,11 @@
 # What it adds to self-check.sh:
 #   - network identity: the RPC genesis against the value you recorded;
 #   - container state and restart counts (a restart loop answers no jobs);
-#   - GPU memory in use;
-#   - the unauthenticated edge response of the public endpoint (expect 401);
-#   - the miner's free balance and calibration record, read through the
-#     digest-pinned CLI, so a fee leak or a missing calibration shows up.
+#   - whether the GPU answers, and its memory in use;
+#   - the miner's registration, calibration record and one free-balance
+#     reading, through the digest-pinned CLI (compare balances between runs).
+# It also repeats self-check's unauthenticated edge probe (expect 401), so one
+# run gives the whole picture.
 #
 # Usage (as root, because miner.env and the Docker socket are root-only):
 #   sudo flop-miner-healthcheck.sh --address <miner ss58> --genesis <0x…> [--dir /opt/flop-miner] [--json]
@@ -25,15 +26,16 @@ JSON=0
 usage() { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dir) DIR="$2"; shift 2 ;;
-    --address) ADDRESS="$2"; shift 2 ;;
-    --genesis) GENESIS="$2"; shift 2 ;;
+    --dir) DIR="${2:-}"; shift 2 || usage ;;
+    --address) ADDRESS="${2:-}"; shift 2 || usage ;;
+    --genesis) GENESIS="${2:-}"; shift 2 || usage ;;
     --json) JSON=1; shift ;;
     -h|--help) usage ;;
     *) echo "unknown option: $1" >&2; usage ;;
   esac
 done
-[ -n "$ADDRESS" ] && [ -n "$GENESIS" ] || usage
+[ -n "$ADDRESS" ] && [ -n "$GENESIS" ] && [ -n "$DIR" ] || usage
+DIR="${DIR%/}"
 [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 2; }
 for t in docker jq curl; do command -v "$t" >/dev/null || { echo "missing $t" >&2; exit 2; }; done
 [ -f "$DIR/miner.env" ] || { echo "no miner.env in $DIR" >&2; exit 2; }
@@ -70,7 +72,10 @@ ids="$(docker ps -aq --filter "label=com.docker.compose.project.working_dir=$DIR
 if [ -z "$ids" ]; then
   check containers fail "no Compose containers found for $DIR"
 else
+  inspected="$(docker inspect -f '{{.Name}} {{.State.Status}} {{.RestartCount}} {{.HostConfig.RestartPolicy.Name}} {{.State.ExitCode}}' $ids 2>/dev/null | sed 's#^/##' || true)"
+  [ -n "$inspected" ] || check containers fail "docker inspect returned nothing for $DIR"
   while read -r name status restarts policy code; do
+    [ -n "$name" ] || continue
     if [ "$policy" = no ]; then
       [ "$status" = exited ] && [ "$code" = 0 ] && s=pass || s=fail
     else
@@ -78,17 +83,21 @@ else
       [ "$s" = pass ] && [ "$restarts" -gt 0 ] && s=warn
     fi
     check "container:$name" "$s" "status=$status restarts=$restarts exit=$code"
-  done < <(docker inspect -f '{{.Name}} {{.State.Status}} {{.RestartCount}} {{.HostConfig.RestartPolicy.Name}} {{.State.ExitCode}}' $ids | sed 's#^/##')
+  done <<<"$inspected"
 fi
 
 # 4. GPU memory.
 if command -v nvidia-smi >/dev/null; then
-  check gpu pass "$(nvidia-smi --query-gpu=name,memory.used,memory.total,temperature.gpu --format=csv,noheader | head -1)"
+  if gpu="$(nvidia-smi --query-gpu=name,memory.used,memory.total,temperature.gpu --format=csv,noheader 2>&1)" && [ -n "$gpu" ]; then
+    check gpu pass "$(head -1 <<<"$gpu")"
+  else
+    check gpu fail "nvidia-smi failed: $(head -1 <<<"$gpu")"
+  fi
 else
   check gpu warn "nvidia-smi not found"
 fi
 
-# 5. Public edge: an unauthenticated /session/info must be 401. 502/530 means the origin is down;
+# 5. Public edge: an unauthenticated /session/info must be 401. 502 (or Cloudflare 530) means the origin is down;
 #    301/302/403 usually means an edge rule (redirect, bot challenge) is in the way.
 if [ -n "$HOST" ]; then
   code="$(curl -s -o /dev/null -w '%{http_code}' -m 15 "https://$HOST/session/info" || true)"
@@ -103,13 +112,13 @@ fi
 # 6. Chain: registration, calibration record, free balance.
 if [ -n "$CLI" ]; then
   st="$(cli miner status "$ADDRESS" --json || true)"
-  if [ -n "$st" ]; then
-    reg="$(jq -r '.registered' <<<"$st")"
+  if [ -n "$st" ] && jq -e 'type == "object"' <<<"$st" >/dev/null 2>&1; then
+    reg="$(jq -r '.registered' <<<"$st" 2>/dev/null || echo unknown)"
     [ "$reg" = true ] && check registered pass "registered=true" || check registered fail "registered=$reg"
-    cal="$(jq -c '.calibration | if . == null then null else {acceptedAt, verifiedJobs, capGflopsPerSec} end' <<<"$st")"
+    cal="$(jq -c '.calibration | if . == null then null elif type == "object" then {acceptedAt, verifiedJobs, capGflopsPerSec} else . end' <<<"$st" 2>/dev/null || echo null)"
     [ "$cal" != null ] && check calibration pass "$cal" || check calibration warn "no accepted calibration yet (normal for up to a day after first start)"
   else
-    check registered fail "miner status gave no answer"
+    check registered fail "miner status gave no JSON answer"
   fi
   bal="$(cli balance "$ADDRESS" --json | jq -r '.free // empty' || true)"
   if [ -n "$bal" ]; then
