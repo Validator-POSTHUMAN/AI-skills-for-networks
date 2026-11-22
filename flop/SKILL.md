@@ -23,7 +23,7 @@ A FLOP miner is **not** a block producer. Its parts:
 - a worker that holds the miner account, answers calibration jobs, and later serves paid sessions;
 - an HTTPS session endpoint.
 
-Its stake is posted by a sponsor, and penalties come from **unanswered jobs**, not from double-signing.
+Its stake is posted by a sponsor. The penalties documented so far come from **unanswered jobs**; FLOP has not published full slashing rules, so never run two workers on one miner account.
 
 Test FLOP has no value. The devnet changes often, so treat every pinned value below as an example to re-verify, not as a default.
 
@@ -43,20 +43,28 @@ Test FLOP has no value. The devnet changes often, so treat every pinned value be
 
 ## Preflight gate (before any start or signature)
 
+Work in a root shell (`sudo -i`, then `cd /opt/flop-miner`), as the pack README does. `miner.env` is root-only, and `sudo` resets the environment, so running pack scripts through `sudo` from a user shell easily loses `FLOP_CLI` and `DRY_RUN`. In that root shell, first load and check the pinned CLI:
+
+```sh
+export FLOP_CLI="$(sed -n 's/^FLOP_CLI=//p' /opt/flop-miner/miner.env | tail -1)"
+case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empty or unpinned: STOP" >&2 ;; esac
+```
+
 1. **Network identity.** Read the genesis hash from the RPC with the digest-pinned CLI (`network status --json`, field `.rpc.genesis_hash`). Compare it with the value you recorded at install time. **Stop on any mismatch.**
    - Devnet resets produce a new genesis. A key, a grant or a policy from the old chain is meaningless there.
    - Example observed in November 2026: `0x99c172c095340ace980631f9123544c6bebd4839f3437e463533422d8be2d631`.
 2. **Account identity.** Before any signing script (`sponsor.sh`, `retire.sh`), dry-run it first and check that the printed address equals the miner address you registered.
    - The dry run happens only when `DRY_RUN` reaches the container with the value exactly `1`. `DRY_RUN=true`, or a variable that never arrives, **signs for real**.
-   - `sudo` resets the environment, so `DRY_RUN=1 sudo ./retire.sh` **signs a real, irreversible deregistration**. From a non-root shell use `sudo DRY_RUN=1 FLOP_CLI="$FLOP_CLI" ./retire.sh`. From a root shell, `export` both variables first.
+   - In the root shell, run `DRY_RUN=1 ./retire.sh` (no `sudo`). `sudo` resets the environment, even for root, so `DRY_RUN=1 sudo ./retire.sh` **signs a real, irreversible deregistration**.
+   - The same applies to `DRY_RUN=1 ./sponsor.sh`.
    - If you wrap these scripts, make the real run require an explicit flag (for example `--really`) rather than relying on the variable being absent.
 3. **Images.** Pin every image by `vX.Y.Z@sha256:` in `miner.env`, never `:stable`, and record the previous lines before any change. Compare each pin with the `minimum` versions in the pack's `releases.json`.
    - `decode-policy.sh`, `sponsor.sh` and `retire.sh` fall back to `cli:stable` when `FLOP_CLI` is not in their environment. `sponsor.sh` and `retire.sh` mount the miner signer into that image.
-   - Export `FLOP_CLI` from `miner.env` (`export FLOP_CLI="$(sed -n 's/^FLOP_CLI=//p' miner.env)"`) and pass it through `sudo` explicitly, as in point 2.
+   - So run them only from the root shell above, after the `FLOP_CLI pinned` check. An empty `FLOP_CLI` counts as unset, and the script silently uses `:stable`.
 4. **Model.** Fetch the exact model revision the pack names, verify every file against a checksum list, and mount it read-only.
    - The backend must report `model_identity: "measured"` with the expected `MODEL_HASH`.
    - Example: `Qwen/Qwen2.5-0.5B-Instruct` at revision `7ae55760…`, BF16.
-5. **Decode policy.** Run `./decode-policy.sh miner.env` before every start, with `FLOP_CLI` exported (point 3). It writes `DECODE_POLICY_HASH` only if the finalized chain allowlists it for the model, and otherwise exits non-zero.
+5. **Decode policy.** Run `./decode-policy.sh miner.env` from the root shell before every start, with `FLOP_CLI` exported and checked (point 3). Never run `sudo ./decode-policy.sh`: it drops `FLOP_CLI` and mounts `miner.env`, tokens included, into `:stable`. It writes `DECODE_POLICY_HASH` only if the finalized chain allowlists it for the model, and otherwise exits non-zero.
 6. **Host.**
    - Ubuntu 22.04/24.04, an NVIDIA GPU with at least 16 GB VRAM, Docker with Compose, and the NVIDIA container toolkit.
    - Keep the session port (8645) and the backend port on loopback. Expose only the TLS endpoint (Caddy on 80/443) or your own tunnel.
@@ -71,6 +79,7 @@ Test FLOP has no value. The devnet changes often, so treat every pinned value be
   - a tunnel token.
 - **Never run `docker compose … config` unfiltered**: it expands the secrets. Pipe it to `jq` and keep only the fields you need.
 - **Authenticated loopback calls.** Pass the bearer header to curl as a config, never as `-H` in argv. Either pipe it in with `printf … | curl --config -` (`printf` is a shell builtin), or write a mode-0600 temporary file, as `self-check.sh` does.
+- **The pack's own setup** puts freshly generated tokens on a `sed` command line for a moment. If that matters on a shared host, generate them into the file without argv, for example with `awk` reading them from the environment.
 - **Never regenerate after the first start:**
   - `enclave.seed`;
   - `INFERENCE_API_KEY`;
@@ -87,7 +96,7 @@ Test FLOP has no value. The devnet changes often, so treat every pinned value be
 - Read `/limits` first.
   - If `sponsor.miner.status` is `open`, a request may pass.
   - `automatic_full` or `daily_limit_reached` means a request without a grant gets 429 now.
-- Run `sudo FLOP_CLI="$FLOP_CLI" ./sponsor.sh` once (approved operators add `GRANT_FILE=/opt/flop-miner/grant.json` after `sudo`, or `sudo` drops it), and read the reply:
+- In the root shell, dry-run first (`DRY_RUN=1 ./sponsor.sh`), then run `./sponsor.sh` once (approved operators prefix `GRANT_FILE=/opt/flop-miner/grant.json`), and read the reply:
 
   | Reply | Meaning |
   |---|---|
@@ -168,8 +177,8 @@ Test FLOP has no value. The devnet changes often, so treat every pinned value be
 
 ## Permanent exit
 
-1. Export `FLOP_CLI` from `miner.env`. Run the genesis check, then `sudo DRY_RUN=1 FLOP_CLI="$FLOP_CLI" ./retire.sh`, and confirm that it prints `DRY_RUN: would sign … as <your address>`. No `DRY_RUN:` line means the dry run did not happen: stop.
-2. Stop the worker, then immediately run `sudo FLOP_CLI="$FLOP_CLI" ./retire.sh`. It signs `minerStaking.deregisterMiner`.
+1. In the root shell, load and check `FLOP_CLI` (see the preflight gate). Run the genesis check, then `DRY_RUN=1 ./retire.sh`, and confirm that it prints `DRY_RUN: would sign … as <your address>`. No `DRY_RUN:` line means the dry run did not happen: stop.
+2. Stop the worker, then immediately run `./retire.sh`. It signs `minerStaking.deregisterMiner`.
 3. Confirm `registered: false` in `miner status`.
 
 After the exit:
