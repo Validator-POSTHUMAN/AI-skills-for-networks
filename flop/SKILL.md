@@ -88,7 +88,8 @@ case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empt
   Create the seed with `set -C` so that a rerun cannot overwrite it.
 - **Off-host backups (encrypted or in a root-only custody location):**
   - `miner-key.json`, before sponsorship;
-  - after the first start: `miner.env`, `enclave.seed`, and the worker-data volume (ghost key, GPU state, journals).
+  - after the first start: `miner.env`, `enclave.seed`, and the worker-data volume (ghost key, GPU state, journals);
+  - with the default compose, also the worker's `.flop-miner-state/` directory, which is not on the volume (see [Readiness and signer fence](#readiness-and-signer-fence)). Copy it with `docker cp` before any recreate.
 - **Approved operators** keep the operator key on a machine that is not a miner host, and copy only `grant.json` (not secret) to miners. **Never copy the operator key to a miner host.**
 
 ## Sponsorship and registration
@@ -137,7 +138,7 @@ case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empt
   - the worker may log that its capacity rate is waiting for an accepted cap;
   - `self-check` fails `local-session`, `chain` and `info-proof`.
 - Once `calibration` is non-null:
-  - rerun `self-check`. Every check should pass except `gateway-listing` (skip);
+  - rerun `self-check`. Every check should pass except `gateway-listing` (skip). If `local-session` still reports `is_ready=false` while `calibration.ready=true`, self-check's "keep waiting" hint is wrong (its `local-session` check treats both flags alike): see [Readiness and signer fence](#readiness-and-signer-fence);
   - back up the worker-data volume.
 
 ## Health checks (read-only)
@@ -148,11 +149,40 @@ case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empt
   - container restart counts;
   - whether the GPU answers, and its memory;
   - the calibration record;
-  - one free-balance reading.
+  - one free-balance reading;
+  - the worker's own `is_ready` and signer-fence state, asked inside the worker container;
+  - IPv6-first DNS in a worker without an IPv6 route;
+  - a genesis fallback over HTTPS JSON-RPC when the WebSocket does not answer.
+
+  Exit codes: 0 OK (it prints the number of warnings), 1 a check failed, 2 usage or precondition error, 3 genesis not confirmed (do not start or sign).
 
   It repeats the public 401 probe so that a single run gives a full picture. Compare the balance between runs yourself.
 - **Watch fees after the first start.** Record the free balance before the worker starts, then read it again every few minutes. The worker's own actions cost little: about 0.0024 test FLOP in the first 15 minutes was observed in November 2026. A steady drop means a retry loop: stop the worker and investigate.
 - **Hairpin NAT.** Probing your own public name from the host can differ from an outside probe.
+- **Old CLI.** After a runtime upgrade an older CLI refuses chain reads with `RUNTIME_INCOMPATIBLE` (printed on stderr). Pin the latest CLI from <https://flop.network/releases.json>; the worker has its own compatibility.
+
+## Readiness and signer fence
+
+The worker's own verdict is authenticated `/session/info`. Query it inside the worker (`docker exec -i <worker> node --input-type=module`, reading `SESSION_AUTH_TOKEN` from the container's environment); it reads the chain and can take several seconds. A 401 at the edge and an Online entry in the explorer do not prove readiness. In one observed case the worker kept answering ghost tasks for hours while `is_ready` was false.
+
+- **Signer fence.** Before each submission the worker writes a fence file (from the worker code), `<genesis>-<account>.signer-fence.json` in its state directory. It removes the file only when the outcome is clear; otherwise it keeps the file and stops signing. The bundled recovery doc lists outcomes that are *not* finalized failure evidence: "a retraction, timeout, disconnect or pool removal". In one observed case a `1010 … ancient birth block` on a re-broadcast fenced the signer although the transaction had landed. While fenced:
+  - `/session/info` shows `calibration.state: "invalid"` with the reason "miner signer is fenced; submission outcome requires operator reconciliation";
+  - `/session/open` is refused with 503 ("miner signer is fenced");
+  - the worker submits nothing, including its capacity rate.
+- **Recovery.** Use the worker's bundled `docs/miner-signer-fence-recovery.md` (read it with `docker exec <worker> cat /repo/sdk/miner-worker/docs/miner-signer-fence-recovery.md`). The POST lets the worker sign again, so get the operator's word first.
+  1. `GET /internal/signer-fence` is read-only. It returns `fenced`, `fencePresent`, `fenceSha256` and `recoverableInProcess`.
+  2. Choose the POST:
+     - if `recoverableInProcess` is true, the doc's command posts `{"expectedFenceSha256": "<sha>"}`. The doc says this "only re-verifies and archives a failure captured by this exact live worker" and does not "submit a transaction";
+     - otherwise, once the RPC is stable, the doc's "durable signed-attempt reconciliation" posts `{"mode": "reconcile", "expectedFenceSha256": "<sha>"}`. Without a `finalizedBlockHash`, it "scans the complete signed mortal era after expiry"; pruned history or an unexpired unknown stays fenced. On worker 0.1.418 this returned `{"ok": true, "archive": "….signer-fence.json.history/<sha>.json", "resolution": {"outcome": "finalized_success", …}}`.
+  3. The doc's example uses a 30 s client timeout; operators saw the era scan take over a minute (flop-labs/network#548), so allow several minutes. If the request times out, re-read the GET; never assume either result.
+  4. Read `/session/info` again: calibration should be `active`. Any outcome other than `finalized_success`, or a 409, means stop and report: the business intent of the failed attempt needs its own reconciliation before any retry.
+  5. On a host where the RPC keeps dropping (see IPv4-only hosts below), the fix needs a recreate, and a fenced worker must not be recreated. Retry the GET and reconcile during a stable window; if it stays fenced, stop and report.
+- **Never** delete or move the fence file, and never restart or recreate the worker to clear it. `restart` keeps the file. A recreate silently drops it, because the default compose keeps `.flop-miner-state/` (fence, history, session evidence) in the container layer, not on `worker-data` (flop-labs/network#94, #190).
+- **IPv4-only hosts.** The RPC name has AAAA records and Node tries IPv6 first. On a host without a global IPv6 route the WebSocket drops (1006, 1001), and fences follow (flop-labs/network#533).
+  - Add `--dns-result-order=ipv4first` to the worker's `NODE_OPTIONS`, keeping `--max-old-space-size`.
+  - Pass `-e NODE_OPTIONS=--dns-result-order=ipv4first` to CLI runs.
+  - Changing the worker's environment means a recreate (see the upgrade steps below).
+- **Calibration active but `is_ready=false`.** With TOPLOC on, paid sessions need the encrypted audit-evidence store: `SESSION_AUDIT_EVIDENCE_DIR` and `SESSION_AUDIT_EVIDENCE_KEY_FILE`. The recovery doc says paid TOPLOC admission "stays unavailable without the configured encrypted evidence directory and key". The November 2026 pack does not set them. An operator in flop-labs/network#275 reports readiness after setting both: a 0700 directory and a 0600 file holding one 32-byte hex key, on the worker volume. This is a configuration change with a recreate.
 
 ## Downtime budget, restarts and upgrades
 
@@ -161,6 +191,9 @@ case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empt
   - A job can arrive just before an outage, so keep any planned outage to **at most half the deadline** (about 5 minutes), including backend cold start if the backend restarts too.
 - **Prefer `restart worker`.** The backend keeps the model loaded.
 - **Allowed:** `stop`, `start`, `restart`, `up -d`, `down` **without** `-v`.
+- **Before anything that recreates the worker** (`up -d` after a change, `--force-recreate`, or `down` then `up`):
+  1. read `GET /internal/signer-fence`. If `fenced` is true, recover first (see [Readiness and signer fence](#readiness-and-signer-fence)); never recreate a fenced worker;
+  2. back up `.flop-miner-state/` with `docker cp`.
 - **Forbidden:**
   - `down -v`;
   - `docker volume rm|prune`;
@@ -171,7 +204,7 @@ case "$FLOP_CLI" in *@sha256:*) echo "FLOP_CLI pinned" ;; *) echo "FLOP_CLI empt
   1. Read the release notes: older workers cannot read newer journals.
   2. Record the current `FLOP_*_IMAGE` lines.
   3. Change the pins.
-  4. Run the genesis check and the decode policy, then `up -d`.
+  4. Run the genesis check and the decode policy, and do the pre-recreate steps above, then `up -d`.
   5. Keep the previous pins for rollback.
 - **After any reboot,** rerun the backend, endpoint and worker checks. Containers that were stopped before the reboot stay stopped.
 
@@ -195,6 +228,7 @@ State:
 - image versions and digests;
 - model and decode-policy hashes;
 - the self-check summary;
+- `is_ready`, calibration state and signer-fence state from the worker;
 - restart counts;
 - GPU memory;
 - the fee trend;
