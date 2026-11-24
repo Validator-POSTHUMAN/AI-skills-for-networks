@@ -1,0 +1,57 @@
+{
+  "example_only": true,
+  "executable_configuration": false,
+  "target_ref": "example-junoclaw-seat",
+  "chain_id": "REPLACE_WITH_AUTHENTICATED_COHORT_CHAIN_ID",
+  "host": "validator-01.example.invalid",
+  "service": "example-junoclaw.service",
+  "binary_path": "/opt/example-junoclaw/slay3rd",
+  "data_dir": "/srv/example-junoclaw/data",
+  "local_grpc": "127.0.0.1:9090",
+  "release": {
+    "source_commit": "REPLACE_WITH_REVIEWED_COMMIT",
+    "artifact_sha256": "REPLACE_WITH_VERIFIED_SHA256",
+    "publisher_authentication": "pending",
+    "coordinator_approval_ref": "pending",
+    "query_schema_ref": "pending",
+    "certificate_verifier_ref": "pending"
+  },
+  "cohort": {
+    "round": "pending",
+    "era": "pending",
+    "seat_index": null,
+    "index_base": null,
+    "players": null,
+    "dealers": null,
+    "threshold": null,
+    "roster_ref": "pending",
+    "previous_group_public_key_ref": "pending",
+    "certificate_participant_index": null,
+    "public_identity_to_participant_mapping_ref": "pending"
+  },
+  "independent_references": [
+    {
+      "label": "donor-a",
+      "endpoint": "donor-a.example.invalid:9090",
+      "approved_route_ref": "pending"
+    },
+    {
+      "label": "donor-b",
+      "endpoint": "donor-b.example.invalid:9090",
+      "approved_route_ref": "pending"
+    }
+  ],
+  "safety": {
+    "active_freeze_ref": "pending",
+    "single_signer_proof_ref": "pending",
+    "key_custody_ref": "private-runbook-reference-only",
+    "preserve_paths": [
+      "data/consensus",
+      "data/wal",
+      "data/mayo_sigs.log"
+    ],
+    "go_ref": "pending",
+    "clock_offset_limit_seconds": 2
+  },
+  "notes": "Synthetic documentation fixture. Resolve actual paths, ports, protocol, clock requirement and all pending values from private inventory. Contains no credentials and grants no authority."
+}

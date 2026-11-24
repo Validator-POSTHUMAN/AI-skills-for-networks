@@ -1,6 +1,6 @@
 ---
 name: junoclaw-validator-ops
-description: "Operate JunoClaw G2 validators: threshold reshares, single-signer cutovers, state sync, finality/signing checks, and recovery."
+description: "Operate JunoClaw validators: threshold reshares, single-signer cutovers, certified state sync, finality and seat-participation checks, and recovery."
 metadata:
   openclaw:
     homepage: https://github.com/Validator-POSTHUMAN/AI-skills-for-networks/tree/main/junoclaw
@@ -8,7 +8,16 @@ metadata:
 
 # JunoClaw validator operations
 
-Use for a JunoClaw G2 seat running `slay3rd` on the Commonware-based chain. JunoClaw is **not** Cosmos Juno: do not use `junod`, CometBFT, Cosmovisor, staking, unjail, or Cosmos snapshot procedures. G2 is an invited, equal-weight testnet without consensus-layer staking or slashing, but a second live signer for one seat is unsafe.
+Use for a coordinator-managed JunoClaw validator seat running `slay3rd` on the Commonware-based chain, including the historical G2 cohort. JunoClaw is **not** Cosmos Juno: do not use `junod`, CometBFT, Cosmovisor, or Cosmos staking, unjail, or snapshot procedures. Resolve the current cohort, era, roster and admission rules rather than treating G2 history as live defaults. A second live signer for one seat is unsafe.
+
+## Load only what the task needs
+
+- Health, finality, participation, cutover or recovery: read [operations and evidence](references/operations.md), then the [version-pinned read-only query recipes](references/queries.md).
+- Reshare, acknowledgement, dealer log or key staging: read [ceremony gates](references/ceremony.md).
+- Release, CLI, query schema or certificate-format uncertainty: read [source and version verification](references/source-verification.md).
+- Operator input: adapt the synthetic [inventory example](examples/inventory.example.json); it is not a node config or execution authority.
+- Handoff: use the [private report template](examples/report-template.md).
+- Review: use the [safety evaluation scenarios](evals/junoclaw-skill-scenarios.md); these are prompts, not executed tests.
 
 ## Source and identity gate
 
@@ -29,7 +38,7 @@ The 2026-10-22 round-2 ceremony expanded G2 to eight seats, a 6-of-8 threshold a
 
 1. At the coordinated window, check exact target, freeze, single-signer placement, clock, disk, digests and rollback capacity. Stop the old service and prove its signer process and listeners absent before swapping. Preserve old binary/config/key as protected artifacts, and retain consensus, WAL and application state unless a separately approved recovery plan requires otherwise.
 2. Switch only the reviewed binary, finalized same-host key and host-specific config; start one service. Check running image digest, loaded share index/quorum, accepted anchor, active service, stable restart count, authenticated peers and advancing **local** finality. Compare digest/app hash at a common height with an independent peer.
-3. A running process, peers or coordinator announcement do not prove this seat signed. Independently decode a fresh certificate/signature bitmap for its index, or label peer/coordinator evidence as relayed. Alert on finality stalls and clock/peer loss. Never blindly restore an old key or journal after the new share may have signed.
+3. A running process, peers or coordinator announcement do not prove this seat signed. Map the operator's identity to the current certificate participant ordering; it need not equal configured validator_index. Label a decoded bitmap as inclusion evidence only. Reserve verified signing/participation for fresh, independently obtained, version-specific cryptographically validated per-seat evidence bound to chain/era, payload and quorum; label coordinator evidence as relayed. Alert on finality stalls and clock/peer loss. Never blindly restore an old key or journal after the new share may have signed.
 
 ## Recovery boundaries
 
