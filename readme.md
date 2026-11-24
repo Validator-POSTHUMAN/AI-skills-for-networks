@@ -8,9 +8,9 @@ This repository contains AI-agent skills for blockchain network operations.
 They are maintained by POSTHUMAN, but the skills are intended to be usable by
 any validator operator with their own inventory and runbooks.
 
-Each network directory is a self-contained skill that helps an AI agent perform
-safe validator operations: monitoring, upgrade preparation, incident triage,
-recovery checks, and operator-facing reports.
+Each network directory is a self-contained skill for its supported roles:
+validators, full and RPC nodes, indexers, miners, or network-specific sidecars.
+Coverage varies by skill; follow its documented scope and safety gates.
 
 The repository also includes generic operational skills and a read-only
 [MCP catalog server](mcp-server/README.md). The MCP serves only this public
@@ -21,6 +21,18 @@ inventories and machine-readable schemas when a skill needs host, service, RPC,
 valoper, or consensus-address input.
 
 ## Skills
+
+The repository contains **32 skills: 24 network-specific skills and 8 generic
+operations skills**. Every published `SKILL.md` is linked below.
+
+| Browse | Coverage |
+| --- | --- |
+| [Network skills](#network-skills) | Validators, full/RPC nodes, indexers, miners, and sidecars across 24 network-specific packages |
+| [Generic operations](#generic-operations) | Onboarding, upgrades, incidents, migration, snapshots, exit, service maintenance, and port audits |
+| [Machine-readable catalog](catalog.json) | Skill IDs, installation slugs, categories, paths, and descriptions |
+| [Read-only MCP server](mcp-server/README.md) | Programmatic skill discovery; metadata-only by default |
+
+### Network Skills
 
 - [AtomOne](atomone/SKILL.md) — AtomOne validator and full-node operations for
   `atomone-1` and reviewed testnets, including Photon fees/mint diagnostics,
@@ -114,14 +126,42 @@ valoper, or consensus-address input.
 
 ### Generic Operations
 
-- [Nodes Service Maintenance](nodes-service-maintenance/SKILL.md)
-- [Server Node and Port Audit](server-node-port-audit/SKILL.md)
-- [Validator Exit and Decommission](validator-exit-decommission/SKILL.md)
-- [Validator Incident Response](validator-incident-response/SKILL.md)
-- [Validator Migration Cutover](validator-migration-cutover/SKILL.md)
-- [Validator Onboarding](validator-onboarding/SKILL.md)
-- [Validator Snapshot Recovery](validator-snapshot-recovery/SKILL.md)
-- [Validator Upgrade](validator-upgrade/SKILL.md)
+- [Nodes Service Maintenance](nodes-service-maintenance/SKILL.md) — Maintain
+  node-service data, UI, contribution content, and deployments.
+- [Server Node and Port Audit](server-node-port-audit/SKILL.md) — Identify
+  blockchain workloads, listening ports, and effective network exposure.
+- [Validator Exit and Decommission](validator-exit-decommission/SKILL.md) —
+  Separate on-chain exit, unbonding, key retention, and infrastructure shutdown.
+- [Validator Incident Response](validator-incident-response/SKILL.md) — Assess
+  signing risk, preserve evidence, recover, and verify the result.
+- [Validator Migration Cutover](validator-migration-cutover/SKILL.md) — Migrate
+  workloads with anti-double-sign, cutover, and rollback gates.
+- [Validator Onboarding](validator-onboarding/SKILL.md) — Prepare registration
+  with readiness, key custody, parameter, transaction, and monitoring checks.
+- [Validator Snapshot Recovery](validator-snapshot-recovery/SKILL.md) — Recover
+  nodes with snapshot integrity, signer-state, and rollback checks.
+- [Validator Upgrade](validator-upgrade/SKILL.md) — Plan and execute upgrades
+  with migration, signing, and post-upgrade verification gates.
+
+## Using a Skill
+
+1. Select the network skill and read its full `SKILL.md` before acting. Check
+   the supported network, environment, and role; for example, the FLOP package
+   covers devnet miners, not validator activation or testnet deployment.
+2. Supply your own private inventory and runbooks. Use the package's example
+   inventory and schema where available; never commit production credentials.
+3. Load referenced files and the relevant generic operations skill only when
+   the task needs them. Review helper scripts before running them on a host.
+4. Verify live state and required approvals. Loading a skill does not grant
+   access, authorize transactions, or waive its safety gates.
+
+## Keeping the Catalog Complete
+
+When adding or renaming a skill, update its `SKILL.md`, the matching entry in
+[`catalog.json`](catalog.json), and its link and description in this README in
+one pull request. Update the counts above when the inventory changes. Check that
+every published `SKILL.md` has exactly one catalog entry and one README listing,
+and that all relative links resolve.
 
 ## Skill Package Layout
 
